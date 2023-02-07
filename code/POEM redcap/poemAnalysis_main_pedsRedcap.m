@@ -32,5 +32,5 @@ thisDataSheetFileName=fullfile(dataDir, rawDataSheets{1});
 
 
 %% classify headache based upon table T
-diagnosisTable = poemAnalysis_classify( T );
+diagnosisTable = poemAnalysis_classify_redcap2( T );
 writetable(diagnosisTable,outputResultExcelName,'Range','A4','WriteRowNames',true)

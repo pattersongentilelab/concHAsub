@@ -2,13 +2,18 @@
 
 data_path = getpref('concHAsubDataPath','MindsMatter_DataPath');
 
-load([data_path '/VEPsubject_masterList111220.mat'])
+readtable([data_path '/excel.csv'])
 
  %% organize and extract VEP files
-filepath=['/Volumes/CIRP_Epidemiology/TM_Pediatric Concussion Prospective Cohort/Data/Equipment Data/VEP/Data exports/Shipley/SHIPLEY 4.22.20 RAW/rdata/'];
+filepath = [data_path '/datapull 032123/export20230321/rdata/'];
+
+% select VEP data from headache substudy
+
+subject_data1 = readtable([data_path '/datapull 032123/excel.csv']);
+subject_data2 = readtable([data_path '/datapull 032123/rawdataIDlink_03.21.23.csv']);
 
 % Match VEP data to subject
-temp=table2array(VEPsubject_data(:,[1 133 118]));
+temp = [VEPsubject_data.recordID VEPsubject_data.PatientID VEPsubject_data.TestID];
 
 for x=1:length(temp)
     if temp(x,3) <100

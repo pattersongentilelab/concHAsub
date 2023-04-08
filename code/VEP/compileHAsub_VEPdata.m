@@ -49,6 +49,8 @@ for x=1:height(match_ID)
     clear Raw*
 end
 
+Raw_VEP = match_ID;
+clear match_ID
 
 %% Filter and parse VEP
 
@@ -59,65 +61,83 @@ d1 = designfilt('bandstopiir','FilterOrder',20,'HalfPowerFrequency1',59,...
 d2 = designfilt('bandstopiir','FilterOrder',20,'HalfPowerFrequency1',119,...
         'HalfPowerFrequency2',121,'SampleRate',Fs); % Bandstop filter for 120Hz noise harmonic in VEP signal
 
-discarded_trials = 0;
-total_trials = 0;
+Raw_VEP.x_data = cell(height(Raw_VEP),1);
+Raw_VEP.cleaned_vep = cell(height(Raw_VEP),1);
+Raw_VEP.discarded_trials = zeros(height(Raw_VEP),1);
 
-match_ID.x_data = cell(height(match_ID),1);
-match_ID.cleaned_vep = cell(height(match_ID),1);
-
-for x=1:height(match_ID)
-    VEP=match_ID.raw_vep{x};
+for x = 1:height(Raw_VEP)
+    VEP = Raw_VEP.raw_vep{x};
  
     dur = length(VEP)./Fs; % total duration of recording (in seconds)
-    match_ID.x_data{x} = 1/Fs:1/Fs:1/reversal;
-
+    x_data = 1/Fs:1/Fs:1/reversal;
+ 
     VEP = filter(d1,VEP);
     VEP = filter(d2,VEP);
     
-
-    y_data=reshape(VEP,[Fs/reversal,dur*reversal]);
+    y_data = reshape(VEP,[Fs/reversal,dur*reversal])';
 
     % remove trials where the absolute max voltage >1
-    temp=find(max(abs(y_data),[],1)<1);
-    temp2=find(max(abs(y_data),[],1)>=1);
-    figure(10)
-    plot(y_data(:,temp2))
-    title('bad trial')
-    pause
-    bad_trials = size(y_data,2)-length(temp);
-    discarded_trials = discarded_trials+bad_trials;
-    total_trials = total_trials+size(y_data,2);
-    disp(['number of discarded trials =' num2str(bad_trials)]);
-    y_data=y_data(:,temp)';
+    temp = find(max(abs(y_data),[],2)>=1);
+    temp2 = find(max(abs(y_data),[],2)<1);
     
-    match_ID.cleaned_vep{x} = y_data;
-    
-    clear x_data y_data
-end
+    if ~isempty(temp)
+        figure(10)
+        plot(x_data,y_data(temp,:))
+        title('bad trial')
+        pause
+        Raw_VEP.discarded_trials(x) = length(temp);
+         y_data = y_data(temp2,:);
+    end
 
-disp(['proportion of discarded trials =' num2str(discarded_trials./total_trials)]);
+    % Normalize pre-response to 0
+    for y = 1:size(y_data,1)
+        temp = mean(mean(y_data(:,1:51)));
+        y_data(y,:) = y_data(y,:) - (temp*ones(size(y_data(y,:))));
+    end
+    
+    Raw_VEP.cleaned_vep{x} = y_data;
+    Raw_VEP.x_data{x} = x_data;
+    
+    clear y_data
+end
 
 
 %% Organize data by participant and session
 
-
-
-% Normalize data
-for x=1:length(cleaned_vep)
-    y_data=cell2mat(cleaned_vep(x,4));
-    
-    
-    % Normalize pre-response to 0
-    for y=1:size(y_data,1)
-        temp=mean(mean(y_data(y,1:51)));
-        y_data(y,:)=y_data(y,:)-(temp*ones(size(y_data(y,:))));
+vep = table([Participants;Participants;Participants],[ones(length(Participants),1);2*ones(length(Participants),1);3*ones(length(Participants),1)],'VariableNames',{'StudyID','TimePoint'});
+vep.baseline = cell(height(vep),1);
+vep.response = cell(height(vep),1);
+for x = 1:height(vep)
+    P = vep.StudyID(x);
+    T = {['T' num2str(vep.TimePoint(x))]};
+    temp = Raw_VEP(contains(Raw_VEP.StudyID,P)==1 & contains(Raw_VEP.TimePoint,T)==1,:);
+    i = height(temp);
+    switch i
+        case 0
+            vep.baseline{x} = NaN;
+            vep.response{x} = NaN;
+        case 4
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4}];
+        case 5
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5}];
+        case 6
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5};temp.cleaned_vep{6}];
+        case 7
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5};temp.cleaned_vep{6};temp.cleaned_vep{7}];
+        case 8
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5};temp.cleaned_vep{6};temp.cleaned_vep{7};temp.cleaned_vep{8}];
+        case 9
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5};temp.cleaned_vep{6};temp.cleaned_vep{7};temp.cleaned_vep{8};temp.cleaned_vep{9}];
+        case 10
+            vep.baseline(x) = temp.cleaned_vep(1);
+            vep.response{x} = [temp.cleaned_vep{2};temp.cleaned_vep{3};temp.cleaned_vep{4};temp.cleaned_vep{5};temp.cleaned_vep{6};temp.cleaned_vep{7};temp.cleaned_vep{8};temp.cleaned_vep{9};temp.cleaned_vep{10}];
     end
-    
-    cleaned_vep{x,4}=y_data;
 end
 
-
-clear *temp
-
-
-save([filepath '/raw_vep_files.mat'],'match_ID')
+save([filepath '/vep_files.mat'],'Raw_VEP','vep','x_data')

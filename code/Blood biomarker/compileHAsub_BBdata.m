@@ -4,6 +4,8 @@ data_path = getpref('concHAsub','concHAsubDataPath');
 
 load([data_path '/blood biomarker/blood_biomarker_022023.mat'])
 
+subject_info = readtable([data_path '/Forms/HSS QA Prelim Demographic Breakdown.csv']);
+
 % Select mean concentration for each of the biomarkers
 NFL_GFAP = table(GFAP_NFL_0223.VarName1,GFAP_NFL_0223.MeanConc,GFAP_NFL_0223.MeanConc1,'VariableNames',{'ID','NFL','GFAP'});
 IL6_IL10 = table(IL6_IL10_0223.SubjectID,IL6_IL10_0223.VarName11,IL6_IL10_0223.VarName14,'VariableNames',{'ID','IL6','IL10'});
@@ -62,37 +64,62 @@ clear IL_T*
 
 
 figure
-subplot(5,1,1)
+subplot(5,2,1)
 title('GFAP')
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 5]; ax.XTick = 1:4; ax.XTickLabels = {'acute','T1','T2','T3'};
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
 plot(1,biomarker_acute.GFAP,'ok','MarkerFaceColor','k')
-plot(2:4,[biomarker_long.GFAP_T1 biomarker_long.GFAP_T2 biomarker_long.GFAP_T3],'--ok','MarkerFaceColor','k')
 
-subplot(5,1,2)
+subplot(5,2,3)
 title('NF-L')
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 5]; ax.XTick = 1:4; ax.XTickLabels = {'acute','T1','T2','T3'};
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
 plot(1,biomarker_acute.NFL,'ok','MarkerFaceColor','k')
-plot(2:4,[biomarker_long.NFL_T1 biomarker_long.NFL_T2 biomarker_long.NFL_T3],'--ok','MarkerFaceColor','k')
 
-subplot(5,1,3)
+subplot(5,2,5)
 title('TNFa')
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 5]; ax.XTick = 1:4; ax.XTickLabels = {'acute','T1','T2','T3'};
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
 plot(1,biomarker_acute.TNFa,'ok','MarkerFaceColor','k')
-plot(2:4,[biomarker_long.TNFa_T1 biomarker_long.TNFa_T2 biomarker_long.TNFa_T3],'--ok','MarkerFaceColor','k')
 
-subplot(5,1,4)
+subplot(5,2,7)
 title('IL-6')
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 5]; ax.XTick = 1:4; ax.XTickLabels = {'acute','T1','T2','T3'};
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
 plot(1,biomarker_acute.IL6,'ok','MarkerFaceColor','k')
-plot(2:4,[biomarker_long.IL6_T1 biomarker_long.IL6_T2 biomarker_long.IL6_T3],'--ok','MarkerFaceColor','k')
 
-subplot(5,1,5)
+subplot(5,2,9)
 title('IL-10')
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 5]; ax.XTick = 1:4; ax.XTickLabels = {'acute','T1','T2','T3'};
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
 plot(1,biomarker_acute.IL10,'ok','MarkerFaceColor','k')
-plot(2:4,[biomarker_long.IL10_T1 biomarker_long.IL6_T2 biomarker_long.IL10_T3],'--ok','MarkerFaceColor','k')
+
+subplot(5,2,2)
+title('GFAP')
+hold on
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
+plot(2:4,[biomarker_long.GFAP_T1 biomarker_long.GFAP_T2 biomarker_long.GFAP_T3]','--ok','MarkerFaceColor','k')
+
+subplot(5,2,4)
+title('NF-L')
+hold on
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
+plot(2:4,[biomarker_long.NFL_T1 biomarker_long.NFL_T2 biomarker_long.NFL_T3]','--ok','MarkerFaceColor','k')
+
+subplot(5,2,6)
+title('TNFa')
+hold on
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
+plot(2:4,[biomarker_long.TNFa_T1 biomarker_long.TNFa_T2 biomarker_long.TNFa_T3]','--ok','MarkerFaceColor','k')
+
+subplot(5,2,8)
+title('IL-6')
+hold on
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
+plot(2:4,[biomarker_long.IL6_T1 biomarker_long.IL6_T2 biomarker_long.IL6_T3]','--ok','MarkerFaceColor','k')
+
+subplot(5,2,10)
+title('IL-10')
+hold on
+ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
+plot(2:4,[biomarker_long.IL10_T1 biomarker_long.IL6_T2 biomarker_long.IL10_T3]','--ok','MarkerFaceColor','k')

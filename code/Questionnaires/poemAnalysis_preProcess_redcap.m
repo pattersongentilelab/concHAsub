@@ -44,10 +44,8 @@ T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 %% Clean and Sanity check the table
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
-T = T(categorical(T.EventName)=='Time point 1',:);
-
-% Only keep completed surveys
-T = T(categorical(T.Complete_)=='Complete',:);
+T = T(categorical(T.EventName)=='Time point 1',[1 6:134]);
+T.RecordID_ = categorical(T.RecordID_);
 
 % Change question text variables to categorical
 T.AreYourEyesSensitiveToLight_ = categorical(T.AreYourEyesSensitiveToLight_);

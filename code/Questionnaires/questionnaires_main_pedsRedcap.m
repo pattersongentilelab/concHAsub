@@ -28,10 +28,11 @@ thisDataSheetFileName = fullfile(dataDir, rawDataSheets{1});
 
 
 %% Organize and analyze POEM results
-[POEM, notesText] = poemAnalysis_preProcess_redcap(thisDataSheetFileName);
+[POEM] = poemAnalysis_preProcess_redcap(thisDataSheetFileName);
 
 % classify headache based upon table T
 diagnosisTable = poemAnalysis_classify_redcap2(POEM);
 writetable(diagnosisTable,outputResultExcelName,'Range','A4','WriteRowNames',true)
 
 %% Organize headache questions
+[HA,MEDS,PCSI] = headacheQ_preProcess_redcap(thisDataSheetFileName);

@@ -42,6 +42,9 @@ warning(orig_state);
 %% Stick the question text into the UserData field of the Table
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
+% select only completed participants
+T = T(1:131,:);
+
 %% Clean and Sanity check the table
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
 T = T(categorical(T.EventName)=='Time point 1',[1 6:134]);

@@ -37,14 +37,12 @@ end
 [~, userID] = system('whoami');
 userID = strtrim(userID);
 
-MMHAsub_dataVepBasePath = ['/Users/' userID '/Users/pattersonc/Library/CloudStorage/OneDrive-SharedLibraries-Children''sHospitalofPhiladelphia/Kessler, Ronni S - VEP'];
 MMHAsub_dataBasePath = ['/Users/' userID '/OneDrive - Children''s Hospital of Philadelphia/Research/Minds Matter/Data/HAsubstudy'];
 MMHAsub_analysisBasePath = ['/Users/' userID '/OneDrive - Children''s Hospital of Philadelphia/Research/Minds Matter/Analysis/HAsubstudy'];
 
 %% Specify where output goes (for mac)
 
 % Code to run on Mac plaform
-setpref(projectName,'concHAsubVepDataPath', MMHAsub_dataVepBasePath);
 setpref(projectName,'concHAsubDataPath', MMHAsub_dataBasePath);
 setpref(projectName,'concHAsubAnalysisPath', MMHAsub_analysisBasePath);
 

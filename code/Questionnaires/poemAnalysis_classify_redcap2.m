@@ -26,6 +26,12 @@ Dx.HeadacheEver(T.HaveYouEverHadEpisodesOfDiscomfort_Pressure_OrPainAroundYourEy
 Dx.HeadacheSpont(T.HaveYouEverHadAHeadacheThatWasNOTCausedByAHeadInjuryOrIllnessLi=='Yes') = 1;
 Dx.HeadacheSpont(T.DoYouGetHeadachesThatAreNOTCausedByAHeadInjuryOrIllnessLikeTheC=='Yes') = 1;
 
+%Family history of migraine
+Dx.FamHx(T.DoYourParents_Brothers_OrSistersGetMigraines_=='Yes') = 1;
+
+% History of motion sickness
+Dx.MotionSick(T.DoYouGetMotionSick_e_g_CarSick_NowOrWhenYouWereYounger_=='Yes') = 1;
+
 %% Migraine diagnosis
 
 % ICHD Migraine criteria A, at least 5 migraine attacks
@@ -95,12 +101,17 @@ Dx.defSpeechAura((T.HaveYouEverHadAnyOfTheFollowingHappenAroundTheTimeOfYourHead
 Dx.activeSpeechAura(T.WhenWasTheLastTimeYouHadDifficultySpeaking_=='Within the past week' | T.WhenWasTheLastTimeYouHadDifficultySpeaking_=='Within the past month' |...
     T.WhenWasTheLastTimeYouHadDifficultySpeaking_=='Within the past year' & (Dx.probSpeechAura==1 | Dx.defSpeechAura==1)) = 1;
 
-%Family history of migraine
-Dx.FamHx(T.DoYourParents_Brothers_OrSistersGetMigraines_=='Yes') = 1;
-
-% History of motion sickness
-Dx.MotionSick(T.DoYouGetMotionSick_e_g_CarSick_NowOrWhenYouWereYounger_=='Yes') = 1;
-
+%% Headache Diagnosis
+Dx.HAdx = zeros(height(Dx),1);
+Dx.HAdx(Dx.HeadacheSpont==1) = 1;
+Dx.HAdx(Dx.probMig==1 & Dx.defVisualAura==0 & Dx.defSensoryAura==0 & Dx.defSpeechAura==0) = 2;
+Dx.HAdx(Dx.probMig==1 & (Dx.defVisualAura==1|Dx.defSensoryAura==1|Dx.defSpeechAura==1)) = 3;
+Dx.HAdx(Dx.Migraine==1 & Dx.defVisualAura==0 & Dx.defSensoryAura==0 & Dx.defSpeechAura==0) = 4;
+Dx.HAdx(Dx.Migraine==1 & (Dx.defVisualAura==1|Dx.defSensoryAura==1|Dx.defSpeechAura==1)) = 5;
+Dx.HAdx = categorical(Dx.HAdx,[0 1 2 3 4 5],{'no headache','non-migraine headache','probable migraine without aura','probable migraine with aura','migraine without aura','migraine with aura'});
+Dx.HAdxSimp = mergecats(Dx.HAdx,{'migraine without aura','migraine with aura'});
+Dx.HAdxSimp = mergecats(Dx.HAdxSimp,{'probable migraine without aura','probable migraine with aura'});
+Dx.HAdxSimp = renamecats(Dx.HAdxSimp,{'probable migraine without aura','migraine without aura'},{'probable migraine','migraine'});
 
 %% Calculate Choi visual discomfort score
 Choi = [T.DuringYourHeadache_DoYouFeelAGreaterSenseOfGlareOrDazzleInYourE T.DuringYourHeadache_DoFlickeringLights_Glare_SpecificColors_OrHi...
@@ -126,6 +137,12 @@ VD2(VD=='Yes') = 1;
 VD2(Dx.HeadacheSpont==1) = -99;
 Dx.VD_score = sum(VD2,2);
 
+Dx.VD_all = Dx.Choi_score;
+Dx.VD_all(Dx.VD_all==-99) = Dx.VD_score(Dx.VD_all==-99);
+
+Dx.interVD = NaN*ones(height(Dx),1);
+Dx.interVD(T.DoYouHaveAnyOfTheAboveSymptomsEvenWhenYouDoNotHaveHeadDiscomfor=='No') = 0;
+Dx.interVD(T.DoYouHaveAnyOfTheAboveSymptomsEvenWhenYouDoNotHaveHeadDiscomfor=='Yes') = 1;
 
 diagnosisTable = Dx;
 

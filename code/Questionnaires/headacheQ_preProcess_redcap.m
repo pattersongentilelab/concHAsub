@@ -43,7 +43,7 @@ warning(orig_state);
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 % select only completed participants
-T = T(1:131,:);
+T = T(1:143,:);
 
 %% Clean and Sanity check the table of initial headache responses for timepoint 1
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
@@ -54,11 +54,62 @@ T3 = T(categorical(T.EventName)=='Time point 3',[1 324:443]);
 %add placeholders for missing data
 dummy_pt2 = T2(2,:); % participant 2 has no headaches and unchecked values
 dummy_pt2.RecordID_ = 'Missing';
+dummy_pt2.DoAnyOfTheFollowingHurt__choice_None__1 = '"'; %convert all variables into undefined
+dummy_pt2.DoAnyOfTheFollowingHurt__choice_WearingYourHairInAPonytail__1 = '"';
+dummy_pt2.DoAnyOfTheFollowingHurt__choice_CombingOrBrushingYourHair__1 = '"';
+dummy_pt2.DoAnyOfTheFollowingHurt__choice_WearingAHat__1 = '"';
+dummy_pt2.DoAnyOfTheFollowingHurt__choice_WearingHeadphones__1 = '"';
+dummy_pt2.OtherSymptoms__choice_None__1 = '"';
+dummy_pt2.OtherSymptoms__choice_Nausea__1 = '"';
+dummy_pt2.OtherSymptoms__choice_Vomiting__1 = '"';
+dummy_pt2.OtherSymptoms__choice_SensitivityToLight__1 = '"';
+dummy_pt2.OtherSymptoms__choice_SensitivityToSmells__1 = '"';
+dummy_pt2.OtherSymptoms__choice_SensitivityToSounds__1 = '"';
+dummy_pt2.OtherSymptoms__choice_Lightheadness__1 = '"';
+dummy_pt2.OtherSymptoms__choice_SpinningSensation__1 = '"';
+dummy_pt2.OtherSymptoms__choice_BalanceProblems__1 = '"';
+dummy_pt2.OtherSymptoms__choice_TroubleHearing__1 = '"';
+dummy_pt2.OtherSymptoms__choice_RingingInEar__1 = '"';
+dummy_pt2.OtherSymptoms__choice_Unresponsive__1 = '"';
+dummy_pt2.OtherSymptoms__choice_NeckPainOrStiffness__1 = '"';
+dummy_pt2.OtherSymptoms__choice_TroubleThinking__1 = '"';
+dummy_pt2.OtherSymptoms__choice_TroubleTalking__1 = '"';
+dummy_pt2.OtherSymptoms__choice_Other__1 = '"';
+dummy_pt2.MedicationsToSTOPHeadaches_choice_None__1 = '"';
+dummy_pt2.OtherSymptoms__choice_RingingInEar__1 = '"';
+dummy_pt2.OtherSymptoms__choice_RingingInEar__1 = '"';
+
 dummy_pt3 = T3(2,:); % participant 2 has no headaches and unchecked values
 dummy_pt3.RecordID_ = 'Missing';
-T2 = [T2(1:4,:);dummy_pt2;T2(5:6,:);dummy_pt2;T2(7:19,:);dummy_pt2;dummy_pt2;T2(20,:);dummy_pt2;T2(21:27,:);dummy_pt2]; % HSS-005, -008, -022, -023, -025, -033 missing
-T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30,:)]; % HSS-021, -022, -032
+dummy_pt3.DoAnyOfTheFollowingHurt__choice_None__1 = '"'; %convert all variables into undefined
+dummy_pt3.DoAnyOfTheFollowingHurt__choice_WearingYourHairInAPonytail__1 = '"';
+dummy_pt3.DoAnyOfTheFollowingHurt__choice_CombingOrBrushingYourHair__1 = '"';
+dummy_pt3.DoAnyOfTheFollowingHurt__choice_WearingAHat__1 = '"';
+dummy_pt3.DoAnyOfTheFollowingHurt__choice_WearingHeadphones__1 = '"';
+dummy_pt3.OtherSymptoms__choice_None__1 = '"';
+dummy_pt3.OtherSymptoms__choice_Nausea__1 = '"';
+dummy_pt3.OtherSymptoms__choice_Vomiting__1 = '"';
+dummy_pt3.OtherSymptoms__choice_SensitivityToLight__1 = '"';
+dummy_pt3.OtherSymptoms__choice_SensitivityToSmells__1 = '"';
+dummy_pt3.OtherSymptoms__choice_SensitivityToSounds__1 = '"';
+dummy_pt3.OtherSymptoms__choice_Lightheadness__1 = '"';
+dummy_pt3.OtherSymptoms__choice_SpinningSensation__1 = '"';
+dummy_pt3.OtherSymptoms__choice_BalanceProblems__1 = '"';
+dummy_pt3.OtherSymptoms__choice_TroubleHearing__1 = '"';
+dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
+dummy_pt3.OtherSymptoms__choice_Unresponsive__1 = '"';
+dummy_pt3.OtherSymptoms__choice_NeckPainOrStiffness__1 = '"';
+dummy_pt3.OtherSymptoms__choice_TroubleThinking__1 = '"';
+dummy_pt3.OtherSymptoms__choice_TroubleTalking__1 = '"';
+dummy_pt3.OtherSymptoms__choice_Other__1 = '"';
+dummy_pt3.MedicationsToSTOPHeadaches_choice_None__1 = '"';
+dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
+dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
 
+T2 = [T2(1:4,:);dummy_pt2;T2(5:6,:);dummy_pt2;T2(7:19,:);dummy_pt2;dummy_pt2;T2(20,:);dummy_pt2;T2(21:27,:);dummy_pt2;T2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033 missing
+T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30:end,:)]; % HSS-021, -022, -032
+
+clear dummy_pt*
 % convert into categorical, and condense questions
 HA = T1(:,1);
 HA.RecordID_ = categorical(T1.RecordID_);
@@ -80,9 +131,9 @@ HA.patternT3(isundefined(HA.patternT3)) = 'no headache';
 HA.Freq_epi = categorical(T1.HowOftenAreTheHeadaches_);
 HA.Freq_epi = reordercats(HA.Freq_epi,{'Less than 1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_epiT2 = categorical(T2.HowOftenAreTheHeadaches__1);
-HA.Freq_epiT2 = reordercats(HA.Freq_epiT2,{'Never','1 per week','2 to 3 per week','More than 3 per week','Daily'});
+HA.Freq_epiT2 = reordercats(HA.Freq_epiT2,{'Never','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_epiT3 = categorical(T2.HowOftenAreTheHeadaches__1);
-HA.Freq_epiT3 = reordercats(HA.Freq_epiT3,{'Never','1 per week','2 to 3 per week','More than 3 per week','Daily'});
+HA.Freq_epiT3 = reordercats(HA.Freq_epiT3,{'Never','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_disable = categorical(T1.HowOftenDoTheHeadachesGetInTheWayOfWhatYouWantToDo_);
 HA.Freq_disable = reordercats(HA.Freq_disable,{'Never','Less than 1 per week','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_disableT2 = categorical(T2.HowOftenDoTheHeadachesGetInTheWayOfWhatYouWantToDo__1);
@@ -127,6 +178,8 @@ HA.quality_oth = categorical(HA.quality_oth,[0 1],{'Unchecked','Checked'});
 
 HA.painLoc_front = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_Front_Forehead_);
 HA.painLoc_top = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_Top_);
+HA.painLoc_sides = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_Temples_sides_);
+HA.painLoc_occiput = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_BackOfHead_);
 HA.painLoc_neck = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_Neck_);
 HA.painLoc_peri_orbit = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_AroundEyes_);
 HA.painLoc_retro_orbit = categorical(T1.WhereOnYourHeadDoYouFeelPain__choice_BehindTheEyes_);
@@ -220,21 +273,37 @@ HA.allodyniaT2(categorical(T2.DoAnyOfTheFollowingHurt__choice_WearingAHat__1)=='
 HA.allodyniaT2(categorical(T2.DoAnyOfTheFollowingHurt__choice_WearingHeadphones__1)=='Checked') = 1;
 HA.allodyniaT2 = categorical(HA.allodyniaT2,[0 1],{'Unchecked','Checked'});
 HA.othSx_noneT2 = categorical(T2.OtherSymptoms__choice_None__1);
+HA.othSx_noneT2 = removecats(HA.othSx_noneT2,{'"'});
 HA.othSx_nauseaT2 = categorical(T2.OtherSymptoms__choice_Nausea__1);
+HA.othSx_nauseaT2 = removecats(HA.othSx_nauseaT2,{'"'});
 HA.othSx_vomitingT2 = categorical(T2.OtherSymptoms__choice_Vomiting__1);
+HA.othSx_vomitingT2 = removecats(HA.othSx_vomitingT2,{'"'});
 HA.othSx_lightsensT2 = categorical(T2.OtherSymptoms__choice_SensitivityToLight__1);
+HA.othSx_lightsensT2 = removecats(HA.othSx_lightsensT2,{'"'});
 HA.othSx_smellsensT2 = categorical(T2.OtherSymptoms__choice_SensitivityToSmells__1);
+HA.othSx_smellsensT2 = removecats(HA.othSx_smellsensT2,{'"'});
 HA.othSx_soundsensT2 = categorical(T2.OtherSymptoms__choice_SensitivityToSounds__1);
+HA.othSx_soundsensT2 = removecats(HA.othSx_soundsensT2,{'"'});
 HA.othSx_lightheadT2 = categorical(T2.OtherSymptoms__choice_Lightheadness__1);
+HA.othSx_lightheadT2 = removecats(HA.othSx_lightheadT2,{'"'});
 HA.othSx_spinningT2 = categorical(T2.OtherSymptoms__choice_SpinningSensation__1);
+HA.othSx_spinningT2 = removecats(HA.othSx_spinningT2,{'"'});
 HA.othSx_balanceT2 = categorical(T2.OtherSymptoms__choice_BalanceProblems__1);
+HA.othSx_balanceT2 = removecats(HA.othSx_balanceT2,{'"'});
 HA.othSx_hearingT2 = categorical(T2.OtherSymptoms__choice_TroubleHearing__1);
+HA.othSx_hearingT2 = removecats(HA.othSx_hearingT2,{'"'});
 HA.othSx_ringingT2 = categorical(T2.OtherSymptoms__choice_RingingInEar__1);
+HA.othSx_ringingT2 = removecats(HA.othSx_ringingT2,{'"'});
 HA.othSx_unresponsiveT2 = categorical(T2.OtherSymptoms__choice_Unresponsive__1);
+HA.othSx_unresponsiveT2 = removecats(HA.othSx_unresponsiveT2,{'"'});
 HA.othSx_neckpainT2 = categorical(T2.OtherSymptoms__choice_NeckPainOrStiffness__1);
+HA.othSx_neckpainT2 = removecats(HA.othSx_neckpainT2,{'"'});
 HA.othSx_thinkingT2 = categorical(T2.OtherSymptoms__choice_TroubleThinking__1);
+HA.othSx_thinkingT2 = removecats(HA.othSx_thinkingT2,{'"'});
 HA.othSx_talkingT2 = categorical(T2.OtherSymptoms__choice_TroubleTalking__1);
+HA.othSx_talkingT2 = removecats(HA.othSx_talkingT2,{'"'});
 HA.othSx_othT2 = categorical(T2.OtherSymptoms__choice_Other__1);
+HA.othSx_othT2 = removecats(HA.othSx_othT2,{'"'});
 
 %T3
 HA.allodyniaT3 = NaN*ones(height(HA),1);
@@ -245,21 +314,38 @@ HA.allodyniaT3(categorical(T3.DoAnyOfTheFollowingHurt__choice_WearingAHat__1)=='
 HA.allodyniaT3(categorical(T3.DoAnyOfTheFollowingHurt__choice_WearingHeadphones__1)=='Checked') = 1;
 HA.allodyniaT3 = categorical(HA.allodyniaT3,[0 1],{'Unchecked','Checked'});
 HA.othSx_noneT3 = categorical(T3.OtherSymptoms__choice_None__1);
+HA.othSx_noneT3 = removecats(HA.othSx_noneT3,{'"'});
 HA.othSx_nauseaT3 = categorical(T3.OtherSymptoms__choice_Nausea__1);
+HA.othSx_nauseaT3 = removecats(HA.othSx_nauseaT3,{'"'});
 HA.othSx_vomitingT3 = categorical(T3.OtherSymptoms__choice_Vomiting__1);
+HA.othSx_vomitingT3 = removecats(HA.othSx_vomitingT3,{'"'});
 HA.othSx_lightsensT3 = categorical(T3.OtherSymptoms__choice_SensitivityToLight__1);
+HA.othSx_lightsensT3 = removecats(HA.othSx_lightsensT3,{'"'});
 HA.othSx_smellsensT3 = categorical(T3.OtherSymptoms__choice_SensitivityToSmells__1);
+HA.othSx_smellsensT3 = removecats(HA.othSx_smellsensT3,{'"'});
 HA.othSx_soundsensT3 = categorical(T3.OtherSymptoms__choice_SensitivityToSounds__1);
+HA.othSx_soundsensT3 = removecats(HA.othSx_soundsensT3,{'"'});
 HA.othSx_lightheadT3 = categorical(T3.OtherSymptoms__choice_Lightheadness__1);
+HA.othSx_lightheadT3 = removecats(HA.othSx_lightheadT3,{'"'});
 HA.othSx_spinningT3 = categorical(T3.OtherSymptoms__choice_SpinningSensation__1);
+HA.othSx_spinningT3 = removecats(HA.othSx_spinningT3,{'"'});
 HA.othSx_balanceT3 = categorical(T3.OtherSymptoms__choice_BalanceProblems__1);
+HA.othSx_balanceT3 = removecats(HA.othSx_balanceT3,{'"'});
 HA.othSx_hearingT3 = categorical(T3.OtherSymptoms__choice_TroubleHearing__1);
+HA.othSx_hearingT3 = removecats(HA.othSx_hearingT3,{'"'});
 HA.othSx_ringingT3 = categorical(T3.OtherSymptoms__choice_RingingInEar__1);
+HA.othSx_ringingT3 = removecats(HA.othSx_ringingT3,{'"'});
 HA.othSx_unresponsiveT3 = categorical(T3.OtherSymptoms__choice_Unresponsive__1);
+HA.othSx_unresponsiveT3 = removecats(HA.othSx_unresponsiveT3,{'"'});
 HA.othSx_neckpainT3 = categorical(T3.OtherSymptoms__choice_NeckPainOrStiffness__1);
+HA.othSx_neckpainT3 = removecats(HA.othSx_neckpainT3,{'"'});
 HA.othSx_thinkingT3 = categorical(T3.OtherSymptoms__choice_TroubleThinking__1);
+HA.othSx_thinkingT3 = removecats(HA.othSx_thinkingT3,{'"'});
 HA.othSx_talkingT3 = categorical(T3.OtherSymptoms__choice_TroubleTalking__1);
+HA.othSx_talkingT3 = removecats(HA.othSx_talkingT3,{'"'});
 HA.othSx_othT3 = categorical(T3.OtherSymptoms__choice_Other__1);
+HA.othSx_othT3 = removecats(HA.othSx_othT3,{'"'});
+
 
 %% Medications to treat headaches
 
@@ -576,19 +662,43 @@ MEDS.imZof_T3 = categorical(T3.Intravenous_IV_OrIntramuscular_IM_Medications__ch
 MEDS.imOth_T3 = categorical(T3.Intravenous_IV_OrIntramuscular_IM_Medications__choice_Other_);
 
 %% Clean and Sanity check the table of initial headache responses PCSI
+
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
 pcsiT1 = T(categorical(T.EventName)=='Time point 1',[1 296:318 510:531]);
 pcsiT2 = T(categorical(T.EventName)=='Time point 2',[1 296:318]);
 pcsiT3 = T(categorical(T.EventName)=='Time point 3',[1 296:318]);
 
 %add placeholders for missing data
-dummy_pt2 = pcsiT2(2,:); % participant 2
-dummy_pt2.RecordID_ = 'Missing';
-dummy_pt3 = pcsiT3(2,:); % participant 2
-dummy_pt3.RecordID_ = 'Missing';
-pcsiT2 = [pcsiT2(1:4,:);dummy_pt2;pcsiT2(5:6,:);dummy_pt2;pcsiT2(7:19,:);dummy_pt2;dummy_pt2;pcsiT2(20,:);dummy_pt2;pcsiT2(21:27,:);dummy_pt2]; % HSS-005, -008, -022, -023, -025, -033 missing
-pcsiT3 = [pcsiT3(1:20,:);dummy_pt3;dummy_pt3;pcsiT3(21:29,:);dummy_pt3;pcsiT3(30,:)]; % HSS-021, -022, -032
+dummy_pt2 = pcsiT2(2,:); % participant 2, then switch everything to missing
+dummy_pt2.RecordID_ = {'Missing'};
+dummy_pt2.Headache = NaN;
+dummy_pt2.Nausea = NaN;
+dummy_pt2.BalanceProblems = NaN;
+dummy_pt2.Dizziness = NaN;
+dummy_pt2.Fatigue = NaN;
+dummy_pt2.SleepMoreThanUsual = NaN;
+dummy_pt2.Drowsiness = NaN;
+dummy_pt2.SensitivityToLight = NaN;
+dummy_pt2.SensitivityToNoise = NaN;
+dummy_pt2.Irritability = NaN;
+dummy_pt2.Sadness = NaN;
+dummy_pt2.Nervousness = NaN;
+dummy_pt2.FeelingMoreEmotional = NaN;
+dummy_pt2.FeelingSlowedDown = NaN;
+dummy_pt2.FeelingMentally_foggy_ = NaN;
+dummy_pt2.DifficultyConcentrating = NaN;
+dummy_pt2.DifficultyRemembering = NaN;
+dummy_pt2.VisualProblems_doubleVision_Blurring_ = NaN;
+dummy_pt2.GetConfusedWithDirectionsOrTasks = NaN;
+dummy_pt2.MoveInAClumsyManner = NaN;
+dummy_pt2.AnswerQuestionsMoreSlowlyThanUsual = NaN;
+dummy_pt2.InGeneral_ToWhatDegreeDoesThePatientFeel_differently_ThanBefore = {'Not recorded'};
+dummy_pt2.PCSICurrent_Teen_TotalSymptomScore = NaN;
 
+pcsiT2 = [pcsiT2(1:4,:);dummy_pt2;pcsiT2(5:6,:);dummy_pt2;pcsiT2(7:19,:);dummy_pt2;dummy_pt2;pcsiT2(20,:);dummy_pt2;pcsiT2(21:27,:);dummy_pt2;pcsiT2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033 missing
+pcsiT3 = [pcsiT3(1:20,:);dummy_pt2;dummy_pt2;pcsiT3(21:29,:);dummy_pt2;pcsiT3(30:end,:)]; % HSS-021, -022, -032
+
+PCSI = T1(:,1);
 PCSI.headache_preinj = pcsiT1.Headache_2;
 PCSI.nausea_preinj = pcsiT1.Nausea_2;
 PCSI.balance_preinj = pcsiT1.BalanceProblems_2;
@@ -680,4 +790,75 @@ PCSI.confused_T3 = pcsiT3.GetConfusedWithDirectionsOrTasks;
 PCSI.clumsy_T3 = pcsiT3.MoveInAClumsyManner;
 PCSI.ansslow_T3 = pcsiT3.AnswerQuestionsMoreSlowlyThanUsual;
 PCSI.total_T3 = pcsiT3.PCSICurrent_Teen_TotalSymptomScore;
+
+% Calculate differences between PCSI scores
+PCSI.headache_diff1 = diff([PCSI.headache_preinj PCSI.headache_T1],1,2);
+PCSI.nausea_diff1 = diff([PCSI.nausea_preinj PCSI.nausea_T1],1,2);
+PCSI.balance_diff1 = diff([PCSI.balance_preinj PCSI.balance_T1],1,2);
+PCSI.dizziness_diff1 = diff([PCSI.dizziness_preinj PCSI.dizziness_T1],1,2);
+PCSI.fatigue_diff1 = diff([PCSI.fatigue_preinj PCSI.fatigue_T1],1,2);
+PCSI.sleepmore_diff1 = diff([PCSI.sleepmore_preinj PCSI.sleepmore_T1],1,2);
+PCSI.drowsiness_diff1 = diff([PCSI.drowsiness_preinj PCSI.drowsiness_T1],1,2);
+PCSI.lightsens_diff1 = diff([PCSI.lightsens_preinj PCSI.lightsens_T1],1,2);
+PCSI.soundsens_diff1 = diff([PCSI.soundsens_preinj PCSI.soundsens_T1],1,2);
+PCSI.irrit_diff1 = diff([PCSI.irrit_preinj PCSI.irrit_T1],1,2);
+PCSI.sadness_diff1 = diff([PCSI.sadness_preinj PCSI.sadness_T1],1,2);
+PCSI.nervous_diff1 = diff([PCSI.nervous_preinj PCSI.nervous_T1],1,2);
+PCSI.emotional_diff1 = diff([PCSI.emotional_preinj PCSI.emotional_T1],1,2);
+PCSI.slowed_diff1 = diff([PCSI.slowed_preinj PCSI.slowed_T1],1,2);
+PCSI.foggy_diff1 = diff([PCSI.foggy_preinj PCSI.foggy_T1],1,2);
+PCSI.concentrate_diff1 = diff([PCSI.concentrate_preinj PCSI.concentrate_T1],1,2);
+PCSI.remember_diff1 = diff([PCSI.remember_preinj PCSI.remember_T1],1,2);
+PCSI.visualprob_diff1 = diff([PCSI.visualprob_preinj PCSI.visualprob_T1],1,2);
+PCSI.confused_diff1 = diff([PCSI.confused_preinj PCSI.confused_T1],1,2);
+PCSI.clumsy_diff1 = diff([PCSI.clumsy_preinj PCSI.clumsy_T1],1,2);
+PCSI.ansslow_diff1 = diff([PCSI.ansslow_preinj PCSI.ansslow_T1],1,2);
+PCSI.total_diff1 = diff([PCSI.total_preinj PCSI.total_T1],1,2);
+
+PCSI.headache_diff2 = diff([PCSI.headache_preinj PCSI.headache_T2],1,2);
+PCSI.nausea_diff2 = diff([PCSI.nausea_preinj PCSI.nausea_T2],1,2);
+PCSI.balance_diff2 = diff([PCSI.balance_preinj PCSI.balance_T2],1,2);
+PCSI.dizziness_diff2 = diff([PCSI.dizziness_preinj PCSI.dizziness_T2],1,2);
+PCSI.fatigue_diff2 = diff([PCSI.fatigue_preinj PCSI.fatigue_T2],1,2);
+PCSI.sleepmore_diff2 = diff([PCSI.sleepmore_preinj PCSI.sleepmore_T2],1,2);
+PCSI.drowsiness_diff2 = diff([PCSI.drowsiness_preinj PCSI.drowsiness_T2],1,2);
+PCSI.lightsens_diff2 = diff([PCSI.lightsens_preinj PCSI.lightsens_T2],1,2);
+PCSI.soundsens_diff2 = diff([PCSI.soundsens_preinj PCSI.soundsens_T2],1,2);
+PCSI.irrit_diff2 = diff([PCSI.irrit_preinj PCSI.irrit_T2],1,2);
+PCSI.sadness_diff2 = diff([PCSI.sadness_preinj PCSI.sadness_T2],1,2);
+PCSI.nervous_diff2 = diff([PCSI.nervous_preinj PCSI.nervous_T2],1,2);
+PCSI.emotional_diff2 = diff([PCSI.emotional_preinj PCSI.emotional_T2],1,2);
+PCSI.slowed_diff2 = diff([PCSI.slowed_preinj PCSI.slowed_T2],1,2);
+PCSI.foggy_diff2 = diff([PCSI.foggy_preinj PCSI.foggy_T2],1,2);
+PCSI.concentrate_diff2 = diff([PCSI.concentrate_preinj PCSI.concentrate_T2],1,2);
+PCSI.remember_diff2 = diff([PCSI.remember_preinj PCSI.remember_T2],1,2);
+PCSI.visualprob_diff2 = diff([PCSI.visualprob_preinj PCSI.visualprob_T2],1,2);
+PCSI.confused_diff2 = diff([PCSI.confused_preinj PCSI.confused_T2],1,2);
+PCSI.clumsy_diff2 = diff([PCSI.clumsy_preinj PCSI.clumsy_T2],1,2);
+PCSI.ansslow_diff2 = diff([PCSI.ansslow_preinj PCSI.ansslow_T2],1,2);
+PCSI.total_diff2 = diff([PCSI.total_preinj PCSI.total_T2],1,2);
+
+PCSI.headache_diff3 = diff([PCSI.headache_preinj PCSI.headache_T3],1,2);
+PCSI.nausea_diff3 = diff([PCSI.nausea_preinj PCSI.nausea_T3],1,2);
+PCSI.balance_diff3 = diff([PCSI.balance_preinj PCSI.balance_T3],1,2);
+PCSI.dizziness_diff3 = diff([PCSI.dizziness_preinj PCSI.dizziness_T3],1,2);
+PCSI.fatigue_diff3 = diff([PCSI.fatigue_preinj PCSI.fatigue_T3],1,2);
+PCSI.sleepmore_diff3 = diff([PCSI.sleepmore_preinj PCSI.sleepmore_T3],1,2);
+PCSI.drowsiness_diff3 = diff([PCSI.drowsiness_preinj PCSI.drowsiness_T3],1,2);
+PCSI.lightsens_diff3 = diff([PCSI.lightsens_preinj PCSI.lightsens_T3],1,2);
+PCSI.soundsens_diff3 = diff([PCSI.soundsens_preinj PCSI.soundsens_T3],1,2);
+PCSI.irrit_diff3 = diff([PCSI.irrit_preinj PCSI.irrit_T3],1,2);
+PCSI.sadness_diff3 = diff([PCSI.sadness_preinj PCSI.sadness_T3],1,2);
+PCSI.nervous_diff3 = diff([PCSI.nervous_preinj PCSI.nervous_T3],1,2);
+PCSI.emotional_diff3 = diff([PCSI.emotional_preinj PCSI.emotional_T3],1,2);
+PCSI.slowed_diff3 = diff([PCSI.slowed_preinj PCSI.slowed_T3],1,2);
+PCSI.foggy_diff3 = diff([PCSI.foggy_preinj PCSI.foggy_T3],1,2);
+PCSI.concentrate_diff3 = diff([PCSI.concentrate_preinj PCSI.concentrate_T3],1,2);
+PCSI.remember_diff3 = diff([PCSI.remember_preinj PCSI.remember_T3],1,2);
+PCSI.visualprob_diff3 = diff([PCSI.visualprob_preinj PCSI.visualprob_T3],1,2);
+PCSI.confused_diff3 = diff([PCSI.confused_preinj PCSI.confused_T3],1,2);
+PCSI.clumsy_diff3 = diff([PCSI.clumsy_preinj PCSI.clumsy_T3],1,2);
+PCSI.ansslow_diff3 = diff([PCSI.ansslow_preinj PCSI.ansslow_T3],1,2);
+PCSI.total_diff3 = diff([PCSI.total_preinj PCSI.total_T3],1,2);
+
 end % function

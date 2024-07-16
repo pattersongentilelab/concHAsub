@@ -15,13 +15,15 @@
 clear variables
 close all
 
+addpath '/Users/pattersonc/Documents/MATLAB/commonFx'
+
 %% Set paths to data and output
 dataDir = '/Users/pattersonc/OneDrive - Children''s Hospital of Philadelphia/Research/Minds Matter/Data/HAsubstudy/Forms/';
 analysisDir = '/Users/pattersonc/OneDrive - Children''s Hospital of Philadelphia/Research/Minds Matter/analysis/HAsubstudy/Forms/';
 
 % Set the output filenames
 outputResultExcelName = fullfile(analysisDir, 'POEMpeds_v2.3_results.xlsx');
-rawDataSheets = {'HeadacheSubstudy-PrelimDataAnalysisCP_DATA_LABELS_2024-05-21_1230.csv'};
+rawDataSheets = {'HeadacheSubstudy-PrelimDataAnalysisCP_DATA_LABELS_2024-07-15_1659.csv'};
 
 % get the full path to thisDataSheet
 thisDataSheetFileName = fullfile(dataDir, rawDataSheets{1});
@@ -36,3 +38,5 @@ writetable(diagnosisTable,outputResultExcelName,'Range','A4','WriteRowNames',tru
 
 %% Organize headache questions
 [HA,MEDS,PCSI] = headacheQ_preProcess_redcap(thisDataSheetFileName);
+
+DxCat = Dx_categories(HA,PCSI);

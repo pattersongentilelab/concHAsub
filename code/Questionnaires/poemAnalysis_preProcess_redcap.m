@@ -43,11 +43,11 @@ warning(orig_state);
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 % select only completed participants
-T = T(1:131,:);
+T = T(1:143,:);
 
 %% Clean and Sanity check the table
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
-T = T(categorical(T.EventName)=='Time point 1',[1 6:134]);
+T = T(categorical(T.EventName)=='Time point 1',[1 6:133]); % select POEM only
 T.RecordID_ = categorical(T.RecordID_);
 
 % Change question text variables to categorical

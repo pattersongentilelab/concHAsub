@@ -3,9 +3,13 @@
 %% select VEP data from headache substudy to match raw VEP file with HSS ID
 data_path = getpref('concHAsub','concHAsubDataPath');
 filepath = [data_path '/VEP'];
+data_pathVEP = getpref('concHAsub','concHAsubVepDataPath');
 
-tbl1 = readtable([filepath '/excel_03.21.23.csv']);
-tbl2 = readtable([filepath '/rawdataIDlink_03.21.23.csv']);
+filepath_VEP = data_pathVEP;
+filepath_rawVEP = [filepath_VEP '/export20240716/raw'];
+
+tbl1 = readtable([filepath_VEP '/VEP_2_07.16.2024/KOP_07.16.2024.csv']);
+tbl2 = readtable([filepath_VEP '/VEP_2_07.16.2024/rawdataIDlink_07.16.2024.csv']);
 
 tbl1 = tbl1(contains(tbl1.LastName,'HSS')==1,:);
 tbl2 = tbl2(contains(tbl2.Var2,'HSS')==1,:);
@@ -40,7 +44,7 @@ clear temp x y
 match_ID.raw_vep = cell(height(match_ID),1);
 for x=1:height(match_ID)
 
-    run([filepath '/' char(match_ID.Filename(x))]);
+    run([filepath_rawVEP '/' char(match_ID.Filename(x))]);
 
     match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
         RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12,RawDataFrame_13,...

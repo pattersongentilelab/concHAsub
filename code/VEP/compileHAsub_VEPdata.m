@@ -3,16 +3,26 @@
 %% select VEP data from headache substudy to match raw VEP file with HSS ID
 data_path = getpref('concHAsub','concHAsubDataPath');
 filepath = [data_path '/VEP'];
-data_pathVEP = getpref('concHAsub','concHAsubVepDataPath');
 
-filepath_VEP = data_pathVEP;
-filepath_rawVEP = [filepath_VEP '/export20240716/raw'];
-
-tbl1 = readtable([filepath_VEP '/VEP_2_07.16.2024/KOP_07.16.2024.csv']);
-tbl2 = readtable([filepath_VEP '/VEP_2_07.16.2024/rawdataIDlink_07.16.2024.csv']);
+tbl1 = readtable([filepath '/KOP_07.16.2024.csv']);
+tbl2 = readtable([filepath '/rawdataIDlink_07.16.2024.csv']);
 
 tbl1 = tbl1(contains(tbl1.LastName,'HSS')==1,:);
 tbl2 = tbl2(contains(tbl2.Var2,'HSS')==1,:);
+
+% correct naming issues
+tbl1.LastName = replace(tbl1.LastName,'HSS-020T3_final','HSS-020T3');
+tbl1.FirstName = replace(tbl1.FirstName,'HSS-020T3_final','HSS-020T3');
+tbl2.Var2 = replace(tbl2.Var2,'HSS-020T3_final','HSS-020T3');
+tbl2.Var3 = replace(tbl2.Var3,'HSS-020T3_final','HSS-020T3');
+tbl2.Var2 = replace(tbl2.Var2,'HSS-023','HSS-023T1');
+tbl2.Var3 = replace(tbl2.Var3,'HSS-023','HSS-023T1');
+tbl2.Var2 = replace(tbl2.Var2,'HSS-024','HSS-024T1');
+tbl2.Var3 = replace(tbl2.Var3,'HSS-024','HSS-024T1');
+
+% remove HSS-023 and HSS-024 who did not tolerate the study, and HSS-037 whoo has not yet completed the study
+tbl1 = tbl1(contains(tbl1.LastName,'T1')==1|contains(tbl1.LastName,'T2')==1|contains(tbl1.LastName,'T3')==1,:);
+tbl2 = tbl2(contains(tbl2.Var2,'T1')==1|contains(tbl2.Var2,'T2')==1|contains(tbl2.Var2,'T3')==1,:);
 
 %% Compile IDs to match study ID with raw matlab file and create filename
 match_ID = table(tbl1.LastName,tbl1.LastName,zeros(size(tbl1.TestID)),tbl1.TestID,tbl1.LastName,'VariableNames',{'StudyID','TimePoint','SessionID','TrialID','Filename'});
@@ -29,7 +39,10 @@ for x = 1:length(Participants)
     for y = 1:3
         T = {['T' num2str(y)]};
         temp = tbl2.Var1(contains(tbl2.Var2,Participants(x))==1 & contains(tbl2.Var2,T)==1);
-        match_ID.SessionID(contains(match_ID.StudyID,Participants(x))==1 & contains(match_ID.TimePoint,T)==1) = temp;
+        if ~isempty(temp)
+            temp = temp(end);
+            match_ID.SessionID(contains(match_ID.StudyID,Participants(x))==1 & contains(match_ID.TimePoint,T)==1) = temp;
+        end
     end
 end
 
@@ -43,8 +56,9 @@ clear temp x y
 %% Extract VEP files
 match_ID.raw_vep = cell(height(match_ID),1);
 for x=1:height(match_ID)
+    
 
-    run([filepath_rawVEP '/' char(match_ID.Filename(x))]);
+    run([filepath '/' char(match_ID.Filename(x))]);
 
     match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
         RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12,RawDataFrame_13,...

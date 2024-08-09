@@ -1,8 +1,9 @@
-% Organize VEP subject data and combine with VEP matlab files
+% Organize VEP subject data and combine with VEP matlab files excellent
 
 %% select VEP data from headache substudy to match raw VEP file with HSS ID
 data_path = getpref('concHAsub','concHAsubDataPath');
 filepath = [data_path '/VEP'];
+addpath '/Users/pattersonc/Documents/MATLAB/commonFx'
 
 tbl1 = readtable([filepath '/KOP_07.16.2024.csv']);
 tbl2 = readtable([filepath '/rawdataIDlink_07.16.2024.csv']);
@@ -113,7 +114,9 @@ for x = 1:height(Raw_VEP)
         y_data(y,:) = y_data(y,:) - (temp*ones(size(y_data(y,:))));
     end
     
-    Raw_VEP.cleaned_vep{x} = y_data;
+    y_data = y_data.*100; % correct for amplification error, convert to microV
+    
+    Raw_VEP.cleaned_vep{x} = y_data; % correct for amplification error, convert to microV
     Raw_VEP.x_data{x} = x_data;
     
     clear y_data
@@ -158,4 +161,233 @@ for x = 1:height(vep)
     end
 end
 
-save([filepath '/vep_files.mat'],'Raw_VEP','vep','x_data')
+%% Fit to gamma model
+
+time_end = 500; % determines the epoch looked at in ms from t = 0 being the alternating checkerboard
+xdata_end = length(x_data(x_data<=time_end));
+gammaC = {'b','r','m','g'};
+mdl_x = 0:0.1:time_end;
+nGamma = 4;
+xdata = x_data(1:xdata_end)*1000;
+
+r_val = NaN*ones(height(vep),1);
+r_val300 = NaN*ones(height(vep),1);
+
+% Determine fits on individual VEP data
+mdl = NaN*ones(height(vep),3*nGamma);
+gamma = NaN*ones(nGamma,length(mdl_x));
+Gamma = NaN*ones(height(vep),nGamma,length(mdl_x));
+yFit = NaN*ones(height(vep),length(xdata));
+bandwidth = NaN*ones(height(vep),nGamma);
+
+Amp75 = NaN*ones(height(vep),1);
+Peak75 = NaN*ones(height(vep),1);
+Bw75 = NaN*ones(height(vep),1);
+Amp100 = NaN*ones(height(vep),1);
+Peak100 = NaN*ones(height(vep),1);
+Bw100 = NaN*ones(height(vep),1);
+Amp135 = NaN*ones(height(vep),1);
+Peak135 = NaN*ones(height(vep),1);
+Bw135 = NaN*ones(height(vep),1);
+Amp220 = NaN*ones(height(vep),1);
+Peak220 = NaN*ones(height(vep),1);
+Bw220 = NaN*ones(height(vep),1);
+
+for i = 1:height(vep)
+        ydata = vep.response{i};
+        if ~isempty(ydata)
+            if ~isnan(ydata)
+                ydata = mean(ydata,1);
+                diffY = diff([min(ydata) max(ydata)]);
+                min_loc = islocalmin(ydata,'MinProminence',diffY*.2);
+                min_peak = xdata(min_loc==1);
+                max_loc = islocalmax(ydata,'MinProminence',diffY*.2);
+                max_peak = xdata(max_loc==1);
+
+                x = sum(min_loc(xdata>60 & xdata<90));
+                switch x
+                    case 0
+                        amp75 = min(ydata(xdata>60 & xdata<90));
+                        peak75 = xdata(ydata==amp75);
+                        peak75 = peak75(1);
+                    case 1
+                        peak75 = min_peak(min_peak>60 & min_peak<90);
+                        amp75 = ydata(xdata==peak75);
+                    otherwise
+                        peak75 = min_peak(min_peak>60 & min_peak<90);
+                        peak75 = peak75(1);
+                        amp75 = ydata(xdata==peak75);
+                end
+                if amp75>-1
+                    amp75 = -1;
+                end
+
+                 x = sum(max_loc(xdata>peak75+5 & xdata<130));
+                switch x
+                    case 0
+                        amp100 = max(ydata(xdata>peak75+5 & xdata<130));
+                        peak100 = xdata(ydata==amp100);
+                        peak100 = peak100(1);
+                    case 1
+                        peak100 = max_peak(max_peak>peak75+5 & max_peak<130);
+                        amp100 = ydata(xdata==peak100);
+                    otherwise
+                        peak100 = max_peak(max_peak>peak75+5 & max_peak<130);
+                        peak100 = peak100(1);
+                        amp100 = ydata(xdata==peak100);
+                end
+
+                if amp100<1
+                    amp100 = 1;
+                end
+
+                x = sum(min_loc(xdata>peak100+5 & xdata<200));
+                switch x
+                    case 0
+                        amp135 = min(ydata(xdata>peak100+5 & xdata<200));
+                        peak135 = xdata(ydata==amp135);
+                        peak135 = peak135(1);
+                    case 1
+                        peak135 = min_peak(min_peak>peak100+5 & min_peak<200);
+                        amp135 = ydata(xdata==peak135);
+                    otherwise
+                        peak135 = min_peak(min_peak>peak100+5 & min_peak<200);
+                        peak135 = peak135(1);
+                        amp135 = ydata(xdata==peak135);
+                end
+
+                if amp135>-1
+                    amp135 = -1;
+                end
+
+               x = sum(max_loc(xdata>peak135+30 & xdata<350));
+                switch x
+                    case 0
+                        amp220 = max(ydata(xdata>peak135+30 & xdata<350));
+                        peak220 = xdata(ydata==amp220);
+                        peak220 = peak220(1);
+                    case 1
+                        peak220 = max_peak(max_peak>peak135+30 & max_peak<350);
+                        amp220 = ydata(xdata==peak220);
+                    otherwise
+                        peak220 = max_peak(max_peak>peak135+30 & max_peak<350);
+                        peak220 = peak220(1);
+                        amp220 = ydata(xdata==peak220);
+                end
+
+                if amp220<1
+                    amp220 = 1;
+                end
+
+                bw75 = 10^((80-abs(diff([peak75 peak100])))/30);
+
+                if bw75 < 30
+                    bw75 = 30;
+                end
+                if bw75 > 80
+                    bw75 = 80;
+                end
+                bw100 = 10^((100-(0.5*abs(diff([peak75 peak135]))))/40);
+                if bw100 < 20
+                    bw100 = 20;
+                end
+                if bw100 > 80
+                    bw100 = 80;
+                end
+                bw135 = 10^((150-(0.5*abs(diff([peak100 peak220]))))/60);
+                if bw135 < 20
+                    bw135 = 20;
+                end
+                if bw135 > 80
+                    bw135 = 80;
+                end
+                bw220 = 10^((200-abs(diff([peak135 peak220])))/80);
+                if bw220 < 10
+                    bw220 = 10;
+                end
+                if bw220 > 80
+                    bw220 = 80;
+                end
+
+                Amp75(i,:) = amp75;
+                Peak75(i,:) = peak75;
+                Bw75(i,:) = bw75;
+                Amp100(i,:) = amp100;
+                Peak100(i,:) = peak100;
+                Bw100(i,:) = bw100;
+                Amp135(i,:) = amp135;
+                Peak135(i,:) = peak135;
+                Bw135(i,:) = bw135;
+                Amp220(i,:) = amp220;
+                Peak220(i,:) = peak220;
+                Bw220(i,:) = bw220;
+            end
+        end
+end
+
+for i = 1:height(vep)
+
+    ydata = vep.response{i};
+    ydata = mean(ydata,1);
+
+    if ~isnan(Peak75(i,:))
+        p0 = [Bw75(i,:) Peak75(i,:) Amp75(i,:) Bw100(i,:) Peak100(i,:) Amp100(i,:) Bw135(i,:) Peak135(i,:) Amp135(i,:) Bw220(i,:) Peak220(i,:) Amp220(i,:)];
+        lb = [max([30 Bw75(i,:)-5]) Peak75(i,:)-2 Amp75(i,:)*1.1 max([20 Bw100(i,:)-5]) Peak100(i,:)-3 Amp100(i,:)*0.9 max([15 Bw135(i,:)-5]) Peak135(i,:)-5 Amp135(i,:)*1.1 max([15 Bw220(i,:)-5]) Peak220(i,:)-5 Amp220(i,:)*0.9]; 
+        ub = [min([110 Bw75(i,:)+5]) Peak75(i,:)+2 Amp75(i,:)*0.9 min([110 Bw100(i,:)+5]) Peak100(i,:)+3 Amp100(i,:)*1.1 min([110 Bw135(i,:)+5]) Peak135(i,:)+5 -Amp135(i,:)*0.9 min([100 Bw220(i,:)+5]) Peak220(i,:)+5 Amp220(i,:)*1.1];
+
+        myFx = @(p) sqrt(sum((ydata - gammaVEP_model(xdata,p,nGamma)).^2));
+        mdl(i,:) = fmincon(myFx,p0,[],[],[],[],lb,ub);
+        [vep_fit,gamma] = gammaVEP_model(mdl_x,mdl(i,:),nGamma);
+        Gamma(i,:,:) = gamma;
+
+        for z = 1:nGamma
+            bandwidth(i,z,:) = gamma_bandwidth(mdl_x,gamma(z,:));
+        end
+
+        [yFit(i,:)] = gammaVEP_model(xdata,mdl(i,:),nGamma);
+        r = corrcoef(ydata,yFit(i,:));
+        r_val(i,:) = r(1,2);
+        r = corrcoef(ydata(1,1:307),yFit(i,1:307));
+        r_val300(i,:) = r(1,2);
+        
+        figure
+        subplot(1,2,1)
+        plot(xdata,ydata,'-','Color',[0.5 0.5 0.5])
+        hold on
+        plot(xdata,yFit(i,:),'-k','LineWidth',2)
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 time_end]; ax.YLim = [-40 40];
+        xlabel(sprintf('r = %2.2f',r_val(i)))
+        title([vep.StudyID(i) vep.TimePoint(i)])
+        subplot(1,2,2)
+        hold on
+        for X = 1:nGamma
+             plot(mdl_x,gamma(X,:),['-' gammaC{X}])
+        end
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.YLim = [-40 40]; ax.XLim = [0 time_end];
+    end
+end
+
+peak = mdl(:,2:3:end);
+amp = mdl(:,3:3:end);
+
+for i = 1:height(vep)
+    vep.mdl(i) = {mdl(i,:)};
+    vep.Gamma(i) = {squeeze(Gamma(i,:,:))};
+    vep.yFit(i) = {yFit(i,:)};
+    vep.peak1(i) = peak(i,1);
+    vep.amp1(i) = amp(i,1);
+    vep.bandwidth1(i) = bandwidth(i,1);
+    vep.peak2(i) = peak(i,2);
+    vep.amp2(i) = amp(i,2);
+    vep.bandwidth2(i) = bandwidth(i,2);
+    vep.peak3(i) = peak(i,3);
+    vep.amp3(i) = amp(i,3);
+    vep.bandwidth3(i) = bandwidth(i,3);
+    vep.peak4(i) = peak(i,4);
+    vep.amp4(i) = amp(i,4);
+    vep.bandwidth4(i) = bandwidth(i,4);
+    vep.R(i) = r_val(i);
+    vep.R300(i) = r_val300(i);
+end
+
+save([filepath '/vep_files.mat'],'Raw_VEP','vep','xdata','mdl_x')

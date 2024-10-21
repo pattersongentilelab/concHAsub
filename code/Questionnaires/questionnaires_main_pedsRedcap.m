@@ -39,4 +39,13 @@ writetable(diagnosisTable,outputResultExcelName,'Range','A4','WriteRowNames',tru
 %% Organize headache questions
 [HA,MEDS,PCSI] = headacheQ_preProcess_redcap(thisDataSheetFileName);
 
+%% Determine diagnosis categories
 DxCat = Dx_categories(HA,PCSI);
+
+%% Calculate CAMS
+% var_aSx = char({'blurry vision','double vision','nausea','vomiting','photophobia','osmophobia','phonophobia','lightheadedness','spinning','balance','ringing','neck pain','thinking'});
+% var_aSx_abs = char({'no nausea','no vomiting','no photophobia','no phonophobia','no osmophobia','no lightheadedness','no spinning','no thinking','no vision','no ringing',...
+%     'no neck pain'});
+% assocSx_T1 = HA(:,[63:64 81:88 90 92:93]);
+% assocSx_T2 = HA(:,[63:64 81:88 90 92:93]);
+% assocSx_T3 = HA(:,[63:64 81:88 90 92:93]);

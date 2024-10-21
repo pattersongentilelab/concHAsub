@@ -37,21 +37,43 @@ Dx.ichdC4 = zeros(height(Dx),1);
 Dx.ichdC1(T.painLoc_front=='Checked'|T.painLoc_top=='Checked'|T.painLoc_peri_orbit=='Checked'|...
     T.painLoc_retro_orbit=='Checked'|T.painLoc_occiput=='Checked'|T.painLoc_sides=='Checked') = 1; % 1) anything but holocephalic
 Dx.ichdC2(T.quality_throbbing=='Checked') = 1; % 2) throbbing quality
-Dx.ichdC3(T.severityT3=='Checked' | T.Freq_disableT3=='2 to 3 per week' |T.Freq_disableT3=='More than 3 per week'...
+Dx.ichdC3_T1(T.severity=='Checked' | T.Freq_disable=='2 to 3 per week' |T.Freq_disable=='More than 3 per week'...
+    | T.Freq_disable=='Daily' | T.Freq_disable=='1 per week' | T.Freq_disable=='Less than 1 per week') = 1; % 3) moderate-to-severe/disabling
+Dx.ichdC3_T2(T.severityT2=='Checked' | T.Freq_disableT2=='2 to 3 per week' |T.Freq_disableT2=='More than 3 per week'...
+    | T.Freq_disableT2=='Daily' | T.Freq_disableT2=='1 per week' | T.Freq_disableT2=='Less than 1 per week') = 1; % 3) moderate-to-severe/disabling
+Dx.ichdC3_T3(T.severityT3=='Checked' | T.Freq_disableT3=='2 to 3 per week' |T.Freq_disableT3=='More than 3 per week'...
     | T.Freq_disableT3=='Daily' | T.Freq_disableT3=='1 per week' | T.Freq_disableT3=='Less than 1 per week') = 1; % 3) moderate-to-severe/disabling
 Dx.ichdC4(T.trig_exercise=='Checked') = 1; % 4) triggered/worsened by exercise
 
-Dx.ichdC = sum([Dx.ichdC1 Dx.ichdC2 Dx.ichdC3 Dx.ichdC4],2);
+Dx.ichdC_T1 = sum([Dx.ichdC1 Dx.ichdC2 Dx.ichdC3_T1 Dx.ichdC4],2);
+Dx.ichdC_T2 = sum([Dx.ichdC1 Dx.ichdC2 Dx.ichdC3_T2 Dx.ichdC4],2);
+Dx.ichdC_T3 = sum([Dx.ichdC1 Dx.ichdC2 Dx.ichdC3_T3 Dx.ichdC4],2);
 %% ICHD criteria D nausea, vomiting, and/or light AND sound sensitivity
-Dx.ichdD = zeros(height(Dx),1);
-Dx.ichdD(T.othSx_vomitingT3=='Checked'|T.othSx_nauseaT3=='Checked') = 1;
-Dx.ichdD(T.othSx_lightsensT3=='Checked'& T.othSx_soundsensT3=='Checked') = 1;
+Dx.ichdD_T1 = zeros(height(Dx),1);
+Dx.ichdD_T1(T.othSx_vomiting=='Checked'|T.othSx_nausea=='Checked') = 1;
+Dx.ichdD_T1(T.othSx_lightsens=='Checked'& T.othSx_soundsens=='Checked') = 1;
+
+Dx.ichdD_T2 = zeros(height(Dx),1);
+Dx.ichdD_T2(T.othSx_vomitingT2=='Checked'|T.othSx_nauseaT2=='Checked') = 1;
+Dx.ichdD_T2(T.othSx_lightsensT2=='Checked'& T.othSx_soundsensT2=='Checked') = 1;
+
+Dx.ichdD_T3 = zeros(height(Dx),1);
+Dx.ichdD_T3(T.othSx_vomitingT3=='Checked'|T.othSx_nauseaT3=='Checked') = 1;
+Dx.ichdD_T3(T.othSx_lightsensT3=='Checked'& T.othSx_soundsensT3=='Checked') = 1;
 
 %% determine if migraine-like
 
-Dx.migLike = zeros(height(Dx),1);
-Dx.migLike(Dx.ichdC>=2 & Dx.ichdD==1) = 1;
-Dx.migLike = categorical(Dx.migLike,[1 0],{'Yes','No'});
+Dx.migLikeT1 = zeros(height(Dx),1);
+Dx.migLikeT1(Dx.ichdC_T1>=2 & Dx.ichdD_T1==1) = 1;
+Dx.migLikeT1 = categorical(Dx.migLikeT1,[1 0],{'Yes','No'});
+
+Dx.migLikeT2 = zeros(height(Dx),1);
+Dx.migLikeT2(Dx.ichdC_T2>=2 & Dx.ichdD_T2==1) = 1;
+Dx.migLikeT2 = categorical(Dx.migLikeT2,[1 0],{'Yes','No'});
+
+Dx.migLikeT3 = zeros(height(Dx),1);
+Dx.migLikeT3(Dx.ichdC_T3>=2 & Dx.ichdD_T3==1) = 1;
+Dx.migLikeT3 = categorical(Dx.migLikeT3,[1 0],{'Yes','No'});
 
 %% Determine if symptomatic
 
@@ -115,8 +137,8 @@ Dx.sympt3(isnan(Dx.sympt3)) = Dx.symptS3(isnan(Dx.sympt3));
 Dx.category = NaN*ones(height(Dx),1);
 Dx.category(Dx.sympt3==0 & U.headache_T3==0) = 0;
 Dx.category(Dx.sympt3==1 & U.headache_T3==0) = 1;
-Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLike=='No') = 2;
-Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLike=='Yes') = 3;
+Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLikeT3=='No') = 2;
+Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLikeT3=='Yes') = 3;
 Dx.category = categorical(Dx.category,[0 1 2 3],{'asymptomatic','symptomatic no HA','symptomatic non-migraine HA','symptomatic migraine HA'});
 
 Dx.catPTH = mergecats(Dx.category,{'symptomatic non-migraine HA','symptomatic migraine HA'});

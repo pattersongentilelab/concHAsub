@@ -43,7 +43,10 @@ warning(orig_state);
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 % select only completed participants
-T = T(1:143,:);
+T = T(1:236,:);
+
+% remove HSS--037, ineligible
+T = T(categorical(T.RecordID_)~='HSS-037',:);
 
 %% Clean and Sanity check the table
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3

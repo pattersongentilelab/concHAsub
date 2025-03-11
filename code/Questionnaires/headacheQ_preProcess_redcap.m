@@ -43,7 +43,10 @@ warning(orig_state);
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 % select only completed participants
-T = T(1:143,:);
+T = T(1:236,:);
+
+% remove HSS--037, ineligible
+T = T(categorical(T.RecordID_)~='HSS-037',:);
 
 %% Clean and Sanity check the table of initial headache responses for timepoint 1
 % Keep Time point 1 when data were collected (Headache Substudy), remove Administrative, and Time points 2 and 3
@@ -106,8 +109,9 @@ dummy_pt3.MedicationsToSTOPHeadaches_choice_None__1 = '"';
 dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
 dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
 
-T2 = [T2(1:4,:);dummy_pt2;T2(5:6,:);dummy_pt2;T2(7:19,:);dummy_pt2;dummy_pt2;T2(20,:);dummy_pt2;T2(21:27,:);dummy_pt2;T2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033 missing
-T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30:end,:)]; % HSS-021, -022, -032
+T2 = [T2(1:4,:);dummy_pt2;T2(5:6,:);dummy_pt2;T2(7:19,:);dummy_pt2;dummy_pt2;T2(20,:);dummy_pt2;T2(21:27,:);dummy_pt2;...
+    T2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033
+T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30:end,:);dummy_pt3]; % HSS-021, -022, -032, -057
 
 clear dummy_pt*
 % convert into categorical, and condense questions
@@ -129,7 +133,7 @@ HA.patternT2(isundefined(HA.patternT2)) = 'no headache';
 HA.patternT3 = categorical(T3.WhatIsTheCurrentPatternOfYourHeadaches__1);
 HA.patternT3(isundefined(HA.patternT3)) = 'no headache';
 HA.Freq_epi = categorical(T1.HowOftenAreTheHeadaches_);
-HA.Freq_epi = reordercats(HA.Freq_epi,{'Less than 1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
+HA.Freq_epi = reordercats(HA.Freq_epi,{'Never','Less than 1 per week','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_epiT2 = categorical(T2.HowOftenAreTheHeadaches__1);
 HA.Freq_epiT2 = reordercats(HA.Freq_epiT2,{'Never','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.Freq_epiT3 = categorical(T2.HowOftenAreTheHeadaches__1);
@@ -692,11 +696,13 @@ dummy_pt2.VisualProblems_doubleVision_Blurring_ = NaN;
 dummy_pt2.GetConfusedWithDirectionsOrTasks = NaN;
 dummy_pt2.MoveInAClumsyManner = NaN;
 dummy_pt2.AnswerQuestionsMoreSlowlyThanUsual = NaN;
-dummy_pt2.InGeneral_ToWhatDegreeDoesThePatientFeel_differently_ThanBefore = {'Not recorded'};
+dummy_pt2.InGeneral_ToWhatDegreeDoesThePatientFeel_differently_ThanBefore = NaN;
 dummy_pt2.PCSICurrent_Teen_TotalSymptomScore = NaN;
 
-pcsiT2 = [pcsiT2(1:4,:);dummy_pt2;pcsiT2(5:6,:);dummy_pt2;pcsiT2(7:19,:);dummy_pt2;dummy_pt2;pcsiT2(20,:);dummy_pt2;pcsiT2(21:27,:);dummy_pt2;pcsiT2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033 missing
-pcsiT3 = [pcsiT3(1:20,:);dummy_pt2;dummy_pt2;pcsiT3(21:29,:);dummy_pt2;pcsiT3(30:end,:)]; % HSS-021, -022, -032
+
+pcsiT2 = [pcsiT2(1:4,:);dummy_pt2;pcsiT2(5:6,:);dummy_pt2;pcsiT2(7:19,:);dummy_pt2;dummy_pt2;pcsiT2(20,:);dummy_pt2;pcsiT2(21:27,:);dummy_pt2;...
+    pcsiT2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033
+pcsiT3 = [pcsiT3(1:20,:);dummy_pt2;dummy_pt2;pcsiT3(21:29,:);dummy_pt2;pcsiT3(30:end,:);dummy_pt2]; % HSS-021, -022, -032, -057
 
 PCSI = T1(:,1);
 PCSI.headache_preinj = pcsiT1.Headache_2;

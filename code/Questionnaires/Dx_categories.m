@@ -27,6 +27,18 @@ Dx.HeadacheT3 = renamecats(Dx.HeadacheT3,{'Sometimes I have a headache, and some
 Dx.HA_change = zeros(height(Dx),1);
 Dx.HA_change(T.noChange=='Unchecked') = 1;
 
+Dx.HAcontT1 = zeros(height(Dx),1);
+Dx.HAcontT1(categorical(T.pattern)=='Some headache is there all the time.  The pain is better sometimes, and worse sometimes.'...
+    | categorical(T.pattern)=='Some headache is there all the time, and it doesn''t change much.') = 1; 
+
+Dx.HAcontT2 = zeros(height(Dx),1);
+Dx.HAcontT2(categorical(T.patternT2)=='Some headache is there all the time.  The pain is better sometimes, and worse sometimes.'...
+    | categorical(T.patternT2)=='Some headache is there all the time, and it doesn''t change much.') = 1; 
+
+Dx.HAcontT3 = zeros(height(Dx),1);
+Dx.HAcontT3(categorical(T.patternT3)=='Some headache is there all the time.  The pain is better sometimes, and worse sometimes.'...
+    | categorical(T.patternT3)=='Some headache is there all the time, and it doesn''t change much.') = 1; 
+
 Dx.prolongedPTH = zeros(height(Dx),1);
 Dx.prolongedPTH(Dx.HA_change==1 & Dx.HeadacheT3=='headache') = 1;
 %% ICHD criteria C
@@ -132,19 +144,19 @@ Dx.sympt2(isnan(Dx.sympt2)) = Dx.symptS2(isnan(Dx.sympt2));
 Dx.sympt3 = Dx.symptV3;
 Dx.sympt3(isnan(Dx.sympt3)) = Dx.symptS3(isnan(Dx.sympt3));
 
-%% categorize for analysis
+%% categorize for analysis based on migraine ICHD
 
 Dx.category = NaN*ones(height(Dx),1);
-Dx.category(Dx.sympt3==0 & U.headache_T3==0) = 0;
-Dx.category(Dx.sympt3==1 & U.headache_T3==0) = 1;
-Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLikeT3=='No') = 2;
-Dx.category(Dx.sympt3==1 & U.headache_T3>=1 & Dx.HA_change==1 & Dx.migLikeT3=='Yes') = 3;
-Dx.category = categorical(Dx.category,[0 1 2 3],{'asymptomatic','symptomatic no HA','symptomatic non-migraine HA','symptomatic migraine HA'});
+Dx.category(Dx.sympt3==0 & Dx.HeadacheT3=='no headache') = 0;
+Dx.category(Dx.sympt3==1 & Dx.HeadacheT3=='no headache') = 1;
+Dx.category(Dx.migLikeT3=='No' & Dx.HeadacheT3=='headache') = 2;
+Dx.category(Dx.migLikeT3=='Yes' & Dx.HeadacheT3=='headache') = 3;
+Dx.category = categorical(Dx.category,[0 1 2 3],{'asymptomatic','symptomatic no HA','post-traumatic non-migraine HA','post-traumatic migraine'});
 
-Dx.catPTH = mergecats(Dx.category,{'symptomatic non-migraine HA','symptomatic migraine HA'});
-Dx.catPTH = renamecats(Dx.catPTH,{'symptomatic non-migraine HA'},{'pth'});
-Dx.catPTH = mergecats(Dx.catPTH,{'asymptomatic','symptomatic no HA'});
-Dx.catPTH = renamecats(Dx.catPTH,{'asymptomatic'},{'no pth'});
+%% categorize for analysis based on PCSI
+Dx.pcsiMig = NaN*ones(height(Dx),1);
+Dx.pcsiMig(U.headache_T3>2 & (U.nausea_T3>0|(U.lightsens_T3>0 & U.soundsens_T3>0))) = 1;
+Dx.pcsiMig(U.headache_T3<=2 & (U.nausea_T3==0 & (U.lightsens_T3==0 | U.soundsens_T3==0))) = 0;
 
 dxCat = Dx;
 end % function

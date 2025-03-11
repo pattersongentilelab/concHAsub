@@ -5,8 +5,8 @@ data_path = getpref('concHAsub','concHAsubDataPath');
 filepath = [data_path '/VEP'];
 addpath '/Users/pattersonc/Documents/MATLAB/commonFx'
 
-tbl1 = readtable([filepath '/KOP_07.16.2024.csv']);
-tbl2 = readtable([filepath '/rawdataIDlink_07.16.2024.csv']);
+tbl1 = readtable([filepath '/KOP_03.07.2025.csv']);
+tbl2 = readtable([filepath '/rawdataIDlink_03.07.2025.csv']);
 
 tbl1 = tbl1(contains(tbl1.LastName,'HSS')==1,:);
 tbl2 = tbl2(contains(tbl2.Var2,'HSS')==1,:);
@@ -21,7 +21,8 @@ tbl2.Var3 = replace(tbl2.Var3,'HSS-023','HSS-023T1');
 tbl2.Var2 = replace(tbl2.Var2,'HSS-024','HSS-024T1');
 tbl2.Var3 = replace(tbl2.Var3,'HSS-024','HSS-024T1');
 
-% remove HSS-023 and HSS-024 who did not tolerate the study, and HSS-037 whoo has not yet completed the study
+% remove HSS-023 and HSS-024 who did not tolerate the study, and -037 who
+% did not meet eligibility criteria
 tbl1 = tbl1(contains(tbl1.LastName,'T1')==1|contains(tbl1.LastName,'T2')==1|contains(tbl1.LastName,'T3')==1,:);
 tbl2 = tbl2(contains(tbl2.Var2,'T1')==1|contains(tbl2.Var2,'T2')==1|contains(tbl2.Var2,'T3')==1,:);
 
@@ -61,9 +62,22 @@ for x=1:height(match_ID)
 
     run([filepath '/' char(match_ID.Filename(x))]);
 
+    if exist('RawDataFrame_15')==1
     match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
         RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12,RawDataFrame_13,...
         RawDataFrame_14,RawDataFrame_15);
+    end
+
+    if exist('RawDataFrame_15')==0 && exist('RawDataFrame_13')==1
+            match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
+        RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12,RawDataFrame_13,...
+        RawDataFrame_14);
+    end
+    
+    if exist('RawDataFrame_13')==0
+    match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
+        RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12);
+    end
 
     clear Raw*
 end
@@ -99,14 +113,15 @@ for x = 1:height(Raw_VEP)
     temp = find(max(abs(y_data),[],2)>=1);
     temp2 = find(max(abs(y_data),[],2)<1);
     
-    if ~isempty(temp)
-        figure(10)
-        plot(x_data,y_data(temp,:))
-        title('bad trial')
-        pause
-        Raw_VEP.discarded_trials(x) = length(temp);
-         y_data = y_data(temp2,:);
-    end
+    % if ~isempty(temp)
+    %     figure(10)
+    %     plot(x_data,y_data(temp,:))
+    %     title('bad trial')
+    %     xlabel(num2str(x))
+    %     pause(0.5)
+    %     Raw_VEP.discarded_trials(x) = length(temp);
+    %      y_data = y_data(temp2,:);
+    % end
 
     % Normalize pre-response to 0
     for y = 1:size(y_data,1)
@@ -116,7 +131,9 @@ for x = 1:height(Raw_VEP)
     
     y_data = y_data.*100; % correct for amplification error, convert to microV
     
-    Raw_VEP.cleaned_vep{x} = y_data; % correct for amplification error, convert to microV
+    max_ydata = NaN*ones(height(y_data),1);
+
+    Raw_VEP.cleaned_vep{x} = y_data;
     Raw_VEP.x_data{x} = x_data;
     
     clear y_data
@@ -197,7 +214,7 @@ for i = 1:height(vep)
         ydata = vep.response{i};
         if ~isempty(ydata)
             if ~isnan(ydata)
-                ydata = mean(ydata,1);
+                ydata = mean(ydata,1)./max(abs(mean(ydata))); % normalize by maximum response
                 diffY = diff([min(ydata) max(ydata)]);
                 min_loc = islocalmin(ydata,'MinProminence',diffY*.2);
                 min_peak = xdata(min_loc==1);
@@ -218,8 +235,8 @@ for i = 1:height(vep)
                         peak75 = peak75(1);
                         amp75 = ydata(xdata==peak75);
                 end
-                if amp75>-1
-                    amp75 = -1;
+                if amp75>-0.01
+                    amp75 = -0.01;
                 end
 
                  x = sum(max_loc(xdata>peak75+5 & xdata<130));
@@ -237,8 +254,8 @@ for i = 1:height(vep)
                         amp100 = ydata(xdata==peak100);
                 end
 
-                if amp100<1
-                    amp100 = 1;
+                if amp100<0.01
+                    amp100 = 0.01;
                 end
 
                 x = sum(min_loc(xdata>peak100+5 & xdata<200));
@@ -256,8 +273,8 @@ for i = 1:height(vep)
                         amp135 = ydata(xdata==peak135);
                 end
 
-                if amp135>-1
-                    amp135 = -1;
+                if amp135>-0.01
+                    amp135 = -0.01;
                 end
 
                x = sum(max_loc(xdata>peak135+30 & xdata<350));
@@ -275,8 +292,8 @@ for i = 1:height(vep)
                         amp220 = ydata(xdata==peak220);
                 end
 
-                if amp220<1
-                    amp220 = 1;
+                if amp220<0.01
+                    amp220 = 0.01;
                 end
 
                 bw75 = 10^((80-abs(diff([peak75 peak100])))/30);
@@ -328,7 +345,7 @@ end
 for i = 1:height(vep)
 
     ydata = vep.response{i};
-    ydata = mean(ydata,1);
+    ydata = mean(ydata,1)./max(abs(mean(ydata)));
 
     if ~isnan(Peak75(i,:))
         p0 = [Bw75(i,:) Peak75(i,:) Amp75(i,:) Bw100(i,:) Peak100(i,:) Amp100(i,:) Bw135(i,:) Peak135(i,:) Amp135(i,:) Bw220(i,:) Peak220(i,:) Amp220(i,:)];
@@ -355,7 +372,7 @@ for i = 1:height(vep)
         plot(xdata,ydata,'-','Color',[0.5 0.5 0.5])
         hold on
         plot(xdata,yFit(i,:),'-k','LineWidth',2)
-        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 time_end]; ax.YLim = [-40 40];
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 time_end]; ax.YLim = [-1.2 1.2];
         xlabel(sprintf('r = %2.2f',r_val(i)))
         title([vep.StudyID(i) vep.TimePoint(i)])
         subplot(1,2,2)
@@ -363,7 +380,7 @@ for i = 1:height(vep)
         for X = 1:nGamma
              plot(mdl_x,gamma(X,:),['-' gammaC{X}])
         end
-        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.YLim = [-40 40]; ax.XLim = [0 time_end];
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.YLim = [-1.2 1.2]; ax.XLim = [0 time_end];
     end
 end
 

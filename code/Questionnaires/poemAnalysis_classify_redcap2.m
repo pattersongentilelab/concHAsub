@@ -1,4 +1,4 @@
-function [diagnosisTable] = poemAnalysis_classify_redcap2( T )
+function [diagnosisTable] = poemAnalysis_classify_redcap2(T)
 %
 % This function takes the table variable "T" and performs a decision tree
 % analysis to classify each subject into headache categories.
@@ -6,16 +6,18 @@ function [diagnosisTable] = poemAnalysis_classify_redcap2( T )
 numSubjects = size(T,1);
 
 % Make diagnostic table for headache type, all questions set to false
-variables = {'HeadacheEver','HeadacheSpont','ICHD_MigA','ICHD_MigB','ICHD_MigCloc',...
+variables = {'ID','HeadacheEver','HeadacheSpont','ICHD_MigA','ICHD_MigB','ICHD_MigCloc',...
     'ICHD_MigCpuls','ICHD_MigCsev','ICHD_MigCact','ICHD_MigC','ICHD_MigDphotophono',...
     'ICHD_MigDnaus','probMig','Migraine','VisualSx','probVisualAura','defVisualAura','activeVisualAura','SensorySx',...
     'probSensoryAura','defSensoryAura','activeSensoryAura','SpeechSx','probSpeechAura','defSpeechAura',...
     'activeSpeechAura','FamHx','MotionSick','Choi_score','VD_score','lightSens_noHA'};
-varTypes = {'logical','logical','logical','logical','logical','logical','logical','logical','double',...
+varTypes = {'categorical','logical','logical','logical','logical','logical','logical','logical','logical','double',...
     'logical','logical','logical','logical','logical','logical','logical','logical','logical','logical','logical','logical',...
     'logical','logical','logical','logical','logical','logical','double','double','logical'}';
 Dx = table('Size',[numSubjects length(variables)],'VariableNames',variables,'VariableTypes',varTypes);
 
+% assign IDs
+Dx.ID = categorical(T.RecordID_);
  
 % Determine if they ever get headaches
 Dx.HeadacheEver(T.DoYouGetHeadaches_=='Yes') = 1;
@@ -107,11 +109,10 @@ Dx.HAdx(Dx.HeadacheSpont==1) = 1;
 Dx.HAdx(Dx.probMig==1 & Dx.defVisualAura==0 & Dx.defSensoryAura==0 & Dx.defSpeechAura==0) = 2;
 Dx.HAdx(Dx.probMig==1 & (Dx.defVisualAura==1|Dx.defSensoryAura==1|Dx.defSpeechAura==1)) = 3;
 Dx.HAdx(Dx.Migraine==1 & Dx.defVisualAura==0 & Dx.defSensoryAura==0 & Dx.defSpeechAura==0) = 4;
-Dx.HAdx(Dx.Migraine==1 & (Dx.defVisualAura==1|Dx.defSensoryAura==1|Dx.defSpeechAura==1)) = 5;
+Dx.HAdx(Dx.defVisualAura==1|Dx.defSensoryAura==1|Dx.defSpeechAura==1) = 5;
 Dx.HAdx = categorical(Dx.HAdx,[0 1 2 3 4 5],{'no headache','non-migraine headache','probable migraine without aura','probable migraine with aura','migraine without aura','migraine with aura'});
-Dx.HAdxSimp = mergecats(Dx.HAdx,{'migraine without aura','migraine with aura'});
-Dx.HAdxSimp = mergecats(Dx.HAdxSimp,{'probable migraine without aura','probable migraine with aura'});
-Dx.HAdxSimp = renamecats(Dx.HAdxSimp,{'probable migraine without aura','migraine without aura'},{'probable migraine','migraine'});
+Dx.HAdxSimp = mergecats(Dx.HAdx,{'migraine without aura','migraine with aura','probable migraine without aura','probable migraine with aura'});
+Dx.HAdxSimp = renamecats(Dx.HAdxSimp,{'migraine without aura'},{'migraine/probable migraine'});
 
 %% Calculate Choi visual discomfort score
 Choi = [T.DuringYourHeadache_DoYouFeelAGreaterSenseOfGlareOrDazzleInYourE T.DuringYourHeadache_DoFlickeringLights_Glare_SpecificColors_OrHi...

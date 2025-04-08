@@ -180,6 +180,16 @@ end
 
 %% Fit to gamma model
 
+Norm = 1;
+
+if Norm==1
+    fl = 0.01;
+    y_lim = 1.2;
+else
+    fl = 1;
+    y_lim = 30;
+end
+
 time_end = 500; % determines the epoch looked at in ms from t = 0 being the alternating checkerboard
 xdata_end = length(x_data(x_data<=time_end));
 gammaC = {'b','r','m','g'};
@@ -211,10 +221,12 @@ Peak220 = NaN*ones(height(vep),1);
 Bw220 = NaN*ones(height(vep),1);
 
 for i = 1:height(vep)
-        ydata = vep.response{i};
+        ydata = mean(vep.response{i},1);
         if ~isempty(ydata)
             if ~isnan(ydata)
-                ydata = mean(ydata,1)./max(abs(mean(ydata))); % normalize by maximum response
+                if Norm==1
+                    ydata = ydata./max(abs(ydata)); % normalize by maximum response
+                end
                 diffY = diff([min(ydata) max(ydata)]);
                 min_loc = islocalmin(ydata,'MinProminence',diffY*.2);
                 min_peak = xdata(min_loc==1);
@@ -235,8 +247,8 @@ for i = 1:height(vep)
                         peak75 = peak75(1);
                         amp75 = ydata(xdata==peak75);
                 end
-                if amp75>-0.01
-                    amp75 = -0.01;
+                if amp75>-1*fl
+                    amp75 = -1*fl;
                 end
 
                  x = sum(max_loc(xdata>peak75+5 & xdata<130));
@@ -254,8 +266,8 @@ for i = 1:height(vep)
                         amp100 = ydata(xdata==peak100);
                 end
 
-                if amp100<0.01
-                    amp100 = 0.01;
+                if amp100<fl
+                    amp100 = fl;
                 end
 
                 x = sum(min_loc(xdata>peak100+5 & xdata<200));
@@ -273,8 +285,8 @@ for i = 1:height(vep)
                         amp135 = ydata(xdata==peak135);
                 end
 
-                if amp135>-0.01
-                    amp135 = -0.01;
+                if amp135>-1*fl
+                    amp135 = -1*fl;
                 end
 
                x = sum(max_loc(xdata>peak135+30 & xdata<350));
@@ -292,8 +304,8 @@ for i = 1:height(vep)
                         amp220 = ydata(xdata==peak220);
                 end
 
-                if amp220<0.01
-                    amp220 = 0.01;
+                if amp220<fl
+                    amp220 = fl;
                 end
 
                 bw75 = 10^((80-abs(diff([peak75 peak100])))/30);
@@ -344,8 +356,11 @@ end
 
 for i = 1:height(vep)
 
-    ydata = vep.response{i};
-    ydata = mean(ydata,1)./max(abs(mean(ydata)));
+    ydata = mean(vep.response{i},1);
+
+    if Norm==1
+        ydata = ydata./max(abs(ydata)); % normalize by maximum response
+    end
 
     if ~isnan(Peak75(i,:))
         p0 = [Bw75(i,:) Peak75(i,:) Amp75(i,:) Bw100(i,:) Peak100(i,:) Amp100(i,:) Bw135(i,:) Peak135(i,:) Amp135(i,:) Bw220(i,:) Peak220(i,:) Amp220(i,:)];
@@ -372,7 +387,7 @@ for i = 1:height(vep)
         plot(xdata,ydata,'-','Color',[0.5 0.5 0.5])
         hold on
         plot(xdata,yFit(i,:),'-k','LineWidth',2)
-        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 time_end]; ax.YLim = [-1.2 1.2];
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 time_end]; ax.YLim = [-1*y_lim y_lim];
         xlabel(sprintf('r = %2.2f',r_val(i)))
         title([vep.StudyID(i) vep.TimePoint(i)])
         subplot(1,2,2)
@@ -380,7 +395,7 @@ for i = 1:height(vep)
         for X = 1:nGamma
              plot(mdl_x,gamma(X,:),['-' gammaC{X}])
         end
-        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.YLim = [-1.2 1.2]; ax.XLim = [0 time_end];
+        ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.YLim = [-1*y_lim y_lim]; ax.XLim = [0 time_end];
     end
 end
 

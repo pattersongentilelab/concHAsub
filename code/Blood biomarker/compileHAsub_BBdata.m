@@ -2,124 +2,109 @@
 
 data_path = getpref('concHAsub','concHAsubDataPath');
 
-load([data_path '/blood biomarker/blood_biomarker_022023.mat'])
+subject_info = readtable([data_path '/Forms/HeadacheSubstudy-DemographicsAndIntak_DATA_LABELS_2025-03-10_1300.csv']);
 
-subject_info = readtable([data_path '/Forms/HSS QA Prelim Demographic Breakdown.csv']);
+biomarker = readtable([data_path '/blood biomarker/combinedPrelimCytokines_031425.xlsx']);
+RecordID = split(biomarker.RecordID,' ');
+biomarker.Timepoint = categorical(RecordID(:,2));
+biomarker.RecordID = categorical(RecordID(:,1));
+biomarker.Group = categorical(repmat({'case'},[height(biomarker) 1]));
+biomarker.Group(contains(string(biomarker.RecordID),'Control')) = 'control';
+clear RecordID
 
-% Select mean concentration for each of the biomarkers
-NFL_GFAP = table(GFAP_NFL_0223.VarName1,GFAP_NFL_0223.MeanConc,GFAP_NFL_0223.MeanConc1,'VariableNames',{'ID','NFL','GFAP'});
-IL6_IL10 = table(IL6_IL10_0223.SubjectID,IL6_IL10_0223.VarName11,IL6_IL10_0223.VarName14,'VariableNames',{'ID','IL6','IL10'});
-TNFa = table(TNFa_0223.SubjectID,TNFa_0223.VarName10,'VariableNames',{'ID','TNFa'});
+%% Plot biomarkers across time
 
-% Select and organize hyperacute sample
-NFL_GFAP_acute = NFL_GFAP(contains(NFL_GFAP.ID,'ACE')==1,:);
-IL6_IL10_acute = IL6_IL10(contains(IL6_IL10.ID,'ACE')==1,:);
-TNFa_acute = TNFa(contains(TNFa.ID,'ACE')==1,:);
-TNFa_acute.ID = replace(TNFa_acute.ID,'ACED077','ACED057'); % Check to make sure this is correct
-temp1 = join(NFL_GFAP_acute,IL6_IL10_acute,'Keys','ID');
-biomarker_acute = join(temp1,TNFa_acute,'Keys','ID');
-
-% Select and organize longitudinal sample
-GN_T1 = NFL_GFAP(contains(NFL_GFAP.ID,'T1')==1,:);
-GN_T1.Properties.VariableNames = {'ID','NFL_T1','GFAP_T1'};
-GN_T1.ID = replace(GN_T1.ID,'T1-B','');
-GN_T2 = NFL_GFAP(contains(NFL_GFAP.ID,'T2')==1,:);
-GN_T2.Properties.VariableNames = {'ID','NFL_T2','GFAP_T2'};
-GN_T2.ID = replace(GN_T2.ID,'T2-B','');
-GN_T3 = NFL_GFAP(contains(NFL_GFAP.ID,'T3')==1,:);
-GN_T3.Properties.VariableNames = {'ID','NFL_T3','GFAP_T3'};
-GN_T3.ID = replace(GN_T3.ID,'T3-B','');
-GN_T3.ID = replace(GN_T3.ID,'-02','-002');
-biomarker_long = join(GN_T1,GN_T2,'Keys','ID');
-biomarker_long = join(biomarker_long,GN_T3,'Keys','ID');
-clear GN_T*
-
-TNF_T1 = TNFa(contains(TNFa.ID,'T1')==1,:);
-TNF_T1.Properties.VariableNames = {'ID','TNFa_T1'};
-TNF_T1.ID = replace(TNF_T1.ID,'T1-B','');
-TNF_T2 = TNFa(contains(TNFa.ID,'T2')==1,:);
-TNF_T2.Properties.VariableNames = {'ID','TNFa_T2'};
-TNF_T2.ID = replace(TNF_T1.ID,'T2-B','');
-TNF_T3 = TNFa(contains(TNFa.ID,'T3')==1,:);
-TNF_T3.Properties.VariableNames = {'ID','TNFa_T3'};
-TNF_T3.ID = replace(TNF_T3.ID,'T3-B','');
-biomarker_long = join(biomarker_long,TNF_T1,'Keys','ID');
-biomarker_long = join(biomarker_long,TNF_T2,'Keys','ID');
-biomarker_long = join(biomarker_long,TNF_T3,'Keys','ID');
-clear TNF_T*
-
-IL_T1 = IL6_IL10(contains(IL6_IL10.ID,'T1')==1,:);
-IL_T1.Properties.VariableNames = {'ID','IL6_T1','IL10_T1'};
-IL_T1.ID = replace(IL_T1.ID,'T1-B','');
-IL_T2 = IL6_IL10(contains(IL6_IL10.ID,'T2')==1,:);
-IL_T2.Properties.VariableNames = {'ID','IL6_T2','IL10_T2'};
-IL_T2.ID = replace(IL_T1.ID,'T2-B','');
-IL_T3 = IL6_IL10(contains(IL6_IL10.ID,'T3')==1,:);
-IL_T3.Properties.VariableNames = {'ID','IL6_T3','IL10_T3'};
-IL_T3.ID = replace(IL_T1.ID,'T3-B','');
-biomarker_long = join(biomarker_long,IL_T1,'Keys','ID');
-biomarker_long = join(biomarker_long,IL_T2,'Keys','ID');
-biomarker_long = join(biomarker_long,IL_T3,'Keys','ID');
-clear IL_T*
-
-
-figure
-subplot(5,2,1)
-title('GFAP')
+% IL6
+subplot(2,3,1)
+jtr = 0.1*rand([height(biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T1')) 1])-0.05;
+jtr2 = 0.1*rand([height(biomarker.IL6(biomarker.Group=='control')) 1])-0.05;
+x = [ones(height(biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr...
+    2*ones(height(biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr... 
+    3*ones(height(biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr];
+y = [biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T1') biomarker.IL6(biomarker.Group=='case'...
+    & biomarker.Timepoint=='T2') biomarker.IL6(biomarker.Group=='case' & biomarker.Timepoint=='T3')];
+plot(x',y','--o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 1])
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
-plot(1,biomarker_acute.GFAP,'ok','MarkerFaceColor','k')
+plot(1:3,nanmean(y,1),'-xb')
+plot(4*ones(size(jtr2))+jtr2,biomarker.IL6(biomarker.Group=='control'),'o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 0.5])
+plot(4,nanmean(biomarker.IL6(biomarker.Group=='control')),'xb')
+title('IL6')
+xlabel('Timepoint')
+ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0.5 4.5]; ax.YLim = [0 max(max(y))*1.1];
+ax.XTick = 1:4; ax.XTickLabel = {'<2 weeks','3 weeks','5 weeks','control'};
 
-subplot(5,2,3)
-title('NF-L')
+% IL10
+subplot(2,3,2)
+jtr = 0.1*rand([height(biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T1')) 1])-0.05;
+jtr2 = 0.1*rand([height(biomarker.IL10(biomarker.Group=='control')) 1])-0.05;
+x = [ones(height(biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr...
+    2*ones(height(biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr... 
+    3*ones(height(biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr];
+y = [biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T1') biomarker.IL10(biomarker.Group=='case'...
+    & biomarker.Timepoint=='T2') biomarker.IL10(biomarker.Group=='case' & biomarker.Timepoint=='T3')];
+plot(x',y','--o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[1 0.5 1])
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
-plot(1,biomarker_acute.NFL,'ok','MarkerFaceColor','k')
+plot(1:3,nanmean(y,1),'-xm')
+plot(4*ones(size(jtr2))+jtr2,biomarker.IL10(biomarker.Group=='control'),'o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 0.5])
+plot(4,nanmean(biomarker.IL10(biomarker.Group=='control')),'xm')
+title('IL10')
+xlabel('Timepoint')
+ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0.5 4.5]; ax.YLim = [0 max(max(y))*1.1];
+ax.XTick = 1:4; ax.XTickLabel = {'<2 weeks','3 weeks','5 weeks','control'};
 
-subplot(5,2,5)
+% TNFa
+subplot(2,3,3)
+jtr = 0.1*rand([height(biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T1')) 1])-0.05;
+jtr2 = 0.1*rand([height(biomarker.TNFa(biomarker.Group=='control')) 1])-0.05;
+x = [ones(height(biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr...
+    2*ones(height(biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr... 
+    3*ones(height(biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr];
+y = [biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T1') biomarker.TNFa(biomarker.Group=='case'...
+    & biomarker.Timepoint=='T2') biomarker.TNFa(biomarker.Group=='case' & biomarker.Timepoint=='T3')];
+plot(x',y','--o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[1 0.5 0.5])
+hold on
+plot(1:3,nanmean(y,1),'-xr')
+plot(4*ones(size(jtr2))+jtr2,biomarker.TNFa(biomarker.Group=='control'),'o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 0.5])
+plot(4,nanmean(biomarker.TNFa(biomarker.Group=='control')),'xr')
 title('TNFa')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
-plot(1,biomarker_acute.TNFa,'ok','MarkerFaceColor','k')
+xlabel('Timepoint')
+ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0.5 4.5]; ax.YLim = [0 max(max(y))*1.1];
+ax.XTick = 1:4; ax.XTickLabel = {'<2 weeks','3 weeks','5 weeks','control'};
 
-subplot(5,2,7)
-title('IL-6')
+% GFAP
+subplot(2,3,4)
+jtr = 0.1*rand([height(biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T1')) 1])-0.05;
+jtr2 = 0.1*rand([height(biomarker.GFAP(biomarker.Group=='control')) 1])-0.05;
+x = [ones(height(biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr...
+    2*ones(height(biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr... 
+    3*ones(height(biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr];
+y = [biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T1') biomarker.GFAP(biomarker.Group=='case'...
+    & biomarker.Timepoint=='T2') biomarker.GFAP(biomarker.Group=='case' & biomarker.Timepoint=='T3')];
+plot(x',y','--o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 1 0.5])
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
-plot(1,biomarker_acute.IL6,'ok','MarkerFaceColor','k')
-
-subplot(5,2,9)
-title('IL-10')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0 2]; ax.XTick = 1; ax.XTickLabels = {'acute'};
-plot(1,biomarker_acute.IL10,'ok','MarkerFaceColor','k')
-
-subplot(5,2,2)
+plot(1:3,nanmean(y,1),'-xg')
+plot(4*ones(size(jtr2))+jtr2,biomarker.GFAP(biomarker.Group=='control'),'o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 0.5])
+plot(4,nanmean(biomarker.GFAP(biomarker.Group=='control')),'xg')
 title('GFAP')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
-plot(2:4,[biomarker_long.GFAP_T1 biomarker_long.GFAP_T2 biomarker_long.GFAP_T3]','--ok','MarkerFaceColor','k')
+xlabel('Timepoint')
+ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0.5 4.5]; ax.YLim = [0 max(max(y))*1.1];
+ax.XTick = 1:4; ax.XTickLabel = {'<2 weeks','3 weeks','5 weeks','control'};
 
-subplot(5,2,4)
-title('NF-L')
+% NFL
+subplot(2,3,5)
+jtr = 0.1*rand([height(biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T1')) 1])-0.05;
+jtr2 = 0.1*rand([height(biomarker.NFL(biomarker.Group=='control')) 1])-0.05;
+x = [ones(height(biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr...
+    2*ones(height(biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr... 
+    3*ones(height(biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T1')),1)+jtr];
+y = [biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T1') biomarker.NFL(biomarker.Group=='case'...
+    & biomarker.Timepoint=='T2') biomarker.NFL(biomarker.Group=='case' & biomarker.Timepoint=='T3')];
+plot(x',y','--o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[1 1 0.5])
 hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
-plot(2:4,[biomarker_long.NFL_T1 biomarker_long.NFL_T2 biomarker_long.NFL_T3]','--ok','MarkerFaceColor','k')
-
-subplot(5,2,6)
-title('TNFa')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
-plot(2:4,[biomarker_long.TNFa_T1 biomarker_long.TNFa_T2 biomarker_long.TNFa_T3]','--ok','MarkerFaceColor','k')
-
-subplot(5,2,8)
-title('IL-6')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
-plot(2:4,[biomarker_long.IL6_T1 biomarker_long.IL6_T2 biomarker_long.IL6_T3]','--ok','MarkerFaceColor','k')
-
-subplot(5,2,10)
-title('IL-10')
-hold on
-ax = gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [1 5]; ax.XTick = 2:4; ax.XTickLabels = {'T1','T2','T3'};
-plot(2:4,[biomarker_long.IL10_T1 biomarker_long.IL6_T2 biomarker_long.IL10_T3]','--ok','MarkerFaceColor','k')
+plot(1:3,nanmean(y,1),'-xy')
+plot(4*ones(size(jtr2))+jtr2,biomarker.NFL(biomarker.Group=='control'),'o','Color',[0.8 0.8 0.8],'MarkerFaceColor',[0.5 0.5 0.5])
+plot(4,nanmean(biomarker.NFL(biomarker.Group=='control')),'xy')
+title('NFL')
+xlabel('Timepoint')
+ax=gca; ax.TickDir = 'out'; ax.Box = 'off'; ax.XLim = [0.5 4.5]; ax.YLim = [0 max(max(y))*1.1];
+ax.XTick = 1:4; ax.XTickLabel = {'<2 weeks','3 weeks','5 weeks','control'};

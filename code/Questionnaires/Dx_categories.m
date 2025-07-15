@@ -87,6 +87,20 @@ Dx.migLikeT3 = zeros(height(Dx),1);
 Dx.migLikeT3(Dx.ichdC_T3>=2 & Dx.ichdD_T3==1) = 1;
 Dx.migLikeT3 = categorical(Dx.migLikeT3,[1 0],{'Yes','No'});
 
+%% determine if probable migraine-like
+
+Dx.prmigLikeT1 = zeros(height(Dx),1);
+Dx.prmigLikeT1(Dx.ichdC3_T1==1 | Dx.ichdD_T1==1) = 1;
+Dx.prmigLikeT1 = categorical(Dx.prmigLikeT1,[1 0],{'Yes','No'});
+
+Dx.prmigLikeT2 = zeros(height(Dx),1);
+Dx.prmigLikeT2(Dx.ichdC3_T2==1 | Dx.ichdD_T2==1) = 1;
+Dx.prmigLikeT2 = categorical(Dx.prmigLikeT2,[1 0],{'Yes','No'});
+
+Dx.prmigLikeT3 = zeros(height(Dx),1);
+Dx.prmigLikeT3(Dx.ichdC3_T3==1| Dx.ichdD_T3==1) = 1;
+Dx.prmigLikeT3 = categorical(Dx.prmigLikeT3,[1 0],{'Yes','No'});
+
 %% Determine if symptomatic
 
 % based on PCSI <7

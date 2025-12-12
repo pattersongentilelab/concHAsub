@@ -1,12 +1,12 @@
-% Organize VEP subject data and combine with VEP matlab files excellent
+% Organize VEP subject data and combine with VEP matlab files
 
 %% select VEP data from headache substudy to match raw VEP file with HSS ID
 data_path = getpref('concHAsub','concHAsubDataPath');
 filepath = [data_path '/VEP'];
 addpath '/Users/pattersonc/Documents/MATLAB/commonFx'
 
-tbl1 = readtable([filepath '/KOP_03.07.2025.csv']);
-tbl2 = readtable([filepath '/rawdataIDlink_03.07.2025.csv']);
+tbl1 = readtable([filepath '/KOP_VEP_10.27.2025.csv']);
+tbl2 = readtable([filepath '/rawdataIDlink_10.27.2025.csv']);
 
 tbl1 = tbl1(contains(tbl1.LastName,'HSS')==1,:);
 tbl2 = tbl2(contains(tbl2.Var2,'HSS')==1,:);
@@ -74,9 +74,13 @@ for x=1:height(match_ID)
         RawDataFrame_14);
     end
     
-    if exist('RawDataFrame_13')==0
+    if exist('RawDataFrame_13')==0 && exist('RawDataFrame_7')==1
     match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6,...
         RawDataFrame_7,RawDataFrame_8,RawDataFrame_9,RawDataFrame_10,RawDataFrame_11,RawDataFrame_12);
+    end
+
+    if exist('RawDataFrame_7')==0
+    match_ID.raw_vep{x} = cat(1,RawDataFrame_1,RawDataFrame_2,RawDataFrame_3,RawDataFrame_4,RawDataFrame_5,RawDataFrame_6);
     end
 
     clear Raw*
@@ -354,9 +358,15 @@ for i = 1:height(vep)
         end
 end
 
+Max_mV = NaN*ones(height(vep),1);
+
 for i = 1:height(vep)
 
     ydata = mean(vep.response{i},1);
+
+    if ~isempty(ydata)
+        Max_mV(i,:) = max(abs(ydata));
+    end
 
     if Norm==1
         ydata = ydata./max(abs(ydata)); % normalize by maximum response

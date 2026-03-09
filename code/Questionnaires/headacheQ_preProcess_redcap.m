@@ -43,7 +43,7 @@ warning(orig_state);
 T.Properties.UserData.QuestionText = table2cell(T(1,:));
 
 % select only completed participants
-T = T(1:236,:);
+T = T(1:300,:);
 
 % remove HSS--037, ineligible
 T = T(categorical(T.RecordID_)~='HSS-037',:);
@@ -109,9 +109,10 @@ dummy_pt3.MedicationsToSTOPHeadaches_choice_None__1 = '"';
 dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
 dummy_pt3.OtherSymptoms__choice_RingingInEar__1 = '"';
 
+T1 = T1(2:end,:);
 T2 = [T2(1:4,:);dummy_pt2;T2(5:6,:);dummy_pt2;T2(7:19,:);dummy_pt2;dummy_pt2;T2(20,:);dummy_pt2;T2(21:27,:);dummy_pt2;...
     T2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033
-T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30:end,:);dummy_pt3]; % HSS-021, -022, -032, -057
+T3 = [T3(1:20,:);dummy_pt3;dummy_pt3;T3(21:29,:);dummy_pt3;T3(30:end,:)]; % HSS-021, -022, -032, -057
 
 clear dummy_pt*
 % convert into categorical, and condense questions
@@ -143,7 +144,7 @@ HA.Freq_disable = reordercats(HA.Freq_disable,{'Never','Less than 1 per week','1
 HA.Freq_disableT2 = categorical(T2.HowOftenDoTheHeadachesGetInTheWayOfWhatYouWantToDo__1);
 HA.Freq_disableT2 = reordercats(HA.Freq_disableT2,{'Never','Less than 1 per week','1 per week','2 to 3 per week','More than 3 per week','Daily'});
 HA.Freq_disableT3 = categorical(T3.HowOftenDoTheHeadachesGetInTheWayOfWhatYouWantToDo__1);
-HA.Freq_disableT3 = reordercats(HA.Freq_disableT3,{'Never','Less than 1 per week','1 per week','2 to 3 per week','More than 3 per week','Daily'});
+HA.Freq_disableT3 = reordercats(HA.Freq_disableT3,{'Never','Less than 1 per week','1 per week','2 to 3 per week','More than 3 per week','Daily','Multiple times a day'});
 HA.pedmidasT3 = T3.TotalPedMIDASScore;
 HA.pedmidasT3(isnan(HA.pedmidasT3)) = 0; %all those filled out the form, but indicated they did not have headache
 
@@ -699,10 +700,10 @@ dummy_pt2.AnswerQuestionsMoreSlowlyThanUsual = NaN;
 dummy_pt2.InGeneral_ToWhatDegreeDoesThePatientFeel_differently_ThanBefore = NaN;
 dummy_pt2.PCSICurrent_Teen_TotalSymptomScore = NaN;
 
-
+pcsiT1 = pcsiT1(2:end,:);
 pcsiT2 = [pcsiT2(1:4,:);dummy_pt2;pcsiT2(5:6,:);dummy_pt2;pcsiT2(7:19,:);dummy_pt2;dummy_pt2;pcsiT2(20,:);dummy_pt2;pcsiT2(21:27,:);dummy_pt2;...
     pcsiT2(28:end,:)]; % HSS-005, -008, -022, -023, -025, -033
-pcsiT3 = [pcsiT3(1:20,:);dummy_pt2;dummy_pt2;pcsiT3(21:29,:);dummy_pt2;pcsiT3(30:end,:);dummy_pt2]; % HSS-021, -022, -032, -057
+pcsiT3 = [pcsiT3(1:20,:);dummy_pt2;dummy_pt2;pcsiT3(21:29,:);dummy_pt2;pcsiT3(30:end,:)]; % HSS-021, -022, -032, -057
 
 PCSI = T1(:,1);
 PCSI.headache_preinj = pcsiT1.Headache_2;

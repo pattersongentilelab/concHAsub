@@ -70,8 +70,9 @@ Dx.ichdD_T2(T.othSx_vomitingT2=='Checked'|T.othSx_nauseaT2=='Checked') = 1;
 Dx.ichdD_T2(T.othSx_lightsensT2=='Checked'& T.othSx_soundsensT2=='Checked') = 1;
 
 Dx.ichdD_T3 = zeros(height(Dx),1);
-Dx.ichdD_T3(T.othSx_vomitingT3=='Checked'|T.othSx_nauseaT3=='Checked') = 1;
+Dx.ichdD_T3(T.othSx_lightsensT3=='Checked'|T.othSx_soundsensT3=='Checked') = 0.5;
 Dx.ichdD_T3(T.othSx_lightsensT3=='Checked'& T.othSx_soundsensT3=='Checked') = 1;
+Dx.ichdD_T3(T.othSx_vomitingT3=='Checked'|T.othSx_nauseaT3=='Checked') = 1;
 
 %% determine if migraine-like
 
@@ -84,6 +85,7 @@ Dx.migLikeT2(Dx.ichdC_T2>=2 & Dx.ichdD_T2==1) = 1;
 Dx.migLikeT2 = categorical(Dx.migLikeT2,[1 0],{'Yes','No'});
 
 Dx.migLikeT3 = zeros(height(Dx),1);
+Dx.migLikeT3(Dx.ichdC_T3>=1 & Dx.ichdD_T3==1) = 2;
 Dx.migLikeT3(Dx.ichdC_T3>=2 & Dx.ichdD_T3==1) = 1;
 Dx.migLikeT3 = categorical(Dx.migLikeT3,[1 0],{'Yes','No'});
 
@@ -163,9 +165,9 @@ Dx.sympt3(isnan(Dx.sympt3)) = Dx.symptS3(isnan(Dx.sympt3));
 Dx.category = NaN*ones(height(Dx),1);
 Dx.category(Dx.sympt3==0 & Dx.HeadacheT3=='no headache') = 0;
 Dx.category(Dx.sympt3==1 & Dx.HeadacheT3=='no headache') = 1;
-Dx.category(Dx.migLikeT3=='No' & Dx.HeadacheT3=='headache') = 2;
-Dx.category(Dx.migLikeT3=='Yes' & Dx.HeadacheT3=='headache') = 3;
-Dx.category = categorical(Dx.category,[0 1 2 3],{'asymptomatic','symptomatic no HA','post-traumatic non-migraine HA','post-traumatic migraine'});
+Dx.category(Dx.prmigLikeT3=='No' & Dx.HeadacheT3=='headache') = 2;
+Dx.category(Dx.prmigLikeT3=='Yes' & Dx.HeadacheT3=='headache') = 3;
+Dx.category = categorical(Dx.category,[0 1 2 3],{'asymptomatic','symptomatic no HA','post-traumatic non-migraine HA','post-traumatic migraine-like'});
 
 %% categorize for analysis based on PCSI
 Dx.pcsiMig = NaN*ones(height(Dx),1);
